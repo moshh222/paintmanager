@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Малярный Бокс — Атлас и трекер навыков автомалярки</title>
+  <!-- Подключение Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Премиальные шрифты: Cormorant Garamond (антиква для заголовков и титула), Plus Jakarta Sans + Inter (интерфейс), JetBrains Mono (коды, зерно, метрики) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          colors: {
+            ivory: {
+              50: '#FAF7F2',
+              100: '#F3ECE1',
+              200: '#E7DCCB',
+              300: '#D6C5AC',
+              400: '#BEA788',
+            },
+            bronze: {
+              400: '#B68B56',
+              500: '#9A6E3B',
+              600: '#7B552A',
+              700: '#5C3E1C',
+              100: '#F2E7D8',
+            },
+            obsidian: {
+              900: '#1F1B18',
+              800: '#2E2823',
+              700: '#463E37',
+              600: '#635950',
+              500: '#82776C',
+            },
+            patina: {
+              100: '#E6EFEA',
+              500: '#3F6F58',
+              600: '#2E5643',
+            },
+            starlight: {
+              400: '#C9963B',
+              500: '#A87924',
+              100: '#F7EFE0',
+            }
+          },
+          boxShadow: {
+            'editorial': '0 12px 36px -12px rgba(31, 27, 24, 0.08)',
+            'hairline': '0 1px 0 0 rgba(31, 27, 24, 0.06)',
+            'card-subtle': '0 4px 18px -6px rgba(31, 27, 24, 0.05)',
+            'card-elevated': '0 16px 34px -10px rgba(31, 27, 24, 0.11)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Базовые стили и благородная текстура бумаги слоновой кости */
+    html {
+      scroll-behavior: smooth;
+      background-color: #FAF7F2;
+      color: #1F1B18;
+    }
+
+    body {
+      background-color: #FAF7F2;
+      background-image:
+        radial-gradient(circle at 12% 8%, rgba(182, 139, 86, 0.07) 0%, transparent 42%),
+        radial-gradient(circle at 88% 18%, rgba(63, 111, 88, 0.05) 0%, transparent 38%),
+        linear-gradient(to bottom, rgba(243, 236, 225, 0.35), rgba(250, 247, 242, 0.9));
+      min-height: 100vh;
+    }
+
+    /* Тонкий кастомный скроллбар */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F3ECE1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D6C5AC;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #BEA788;
+    }
+
+    /* Плавное появление при смене вкладок и экранов */
+    @keyframes viewReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .view-enter {
+      animation: viewReveal 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    /* Деликатный отклик звезды */
+    @keyframes starPulse {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+
+    .animate-star-pulse {
+      animation: starPulse 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Плавное появление модальных окон */
+    @keyframes modalReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(14px) scale(0.985);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .animate-modal {
+      animation: modalReveal 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Декоративная типографская рамка для титульного атласа */
+    .editorial-rule {
+      height: 1px;
+      background: linear-gradient(90deg, rgba(154, 110, 59, 0.35), rgba(214, 197, 172, 0.7), rgba(154, 110, 59, 0.35));
+    }
+  </style>
+</head>
+<body class="font-sans text-obsidian-900 flex flex-col antialiased selection:bg-bronze-100 selection:text-bronze-700">
+
+  <!-- Уведомления-тосты -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-[calc(100%-2.5rem)]"></div>
+
+  <!-- ЕДИНАЯ ВЕРХНЯЯ НАВИГАЦИЯ И СТАТУСНАЯ ПАНЕЛЬ -->
+  <header class="sticky top-0 z-30 bg-ivory-50/92 backdrop-blur-md border-b border-ivory-300/80 shadow-hairline transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Верхний ряд: бренд, ранг, прогресс, синхронизация -->
+      <div class="py-3 flex flex-wrap items-center justify-between gap-3">
+        <!-- Бренд и звание -->
+        <button type="button" onclick="switchTab('cover')" class="flex items-center gap-3 text-left group focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-obsidian-900 text-ivory-50 flex items-center justify-center border border-bronze-500/40 shadow-xs group-hover:border-bronze-400 transition-colors">
+            <!-- Строгая монограмма краскопульта / калибра -->
+            <svg class="w-5 h-5 text-bronze-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 5h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4V5z"/>
+              <path d="M9 3h5v8H9z"/>
+              <path d="M11.5 3V1.5"/>
+              <path d="M9 11l-1.5 9h3l1.2-6"/>
+              <path d="M4 7h3"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <span class="font-serif text-xl sm:text-2xl font-semibold tracking-tight text-obsidian-900 leading-none">
+                Малярный Бокс
+              </span>
+              <span id="rank-badge" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-bronze-100 text-bronze-700 border border-bronze-400/35">
+                Новичок в боксе
+              </span>
+            </div>
+            <p class="text-[11px] text-obsidian-500 tracking-wide uppercase mt-0.5 hidden sm:block">
+              Атлас подготовки и грунтования · 37 этапов
+            </p>
+          </div>
+        </button>
+
+        <!-- Компактный индикатор прогресса и действия -->
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="hidden md:flex items-center gap-3 pr-2 border-r border-ivory-300/80">
+            <div class="text-right">
+              <div class="text-[11px] uppercase tracking-wider text-obsidian-500 font-medium">Прогресс</div>
+              <div class="font-mono text-xs font-semibold text-obsidian-900">
+                <span id="total-stars-text">0 / 111 ★</span>
+                <span class="text-bronze-600 ml-1" id="total-percent-text">0%</span>
+              </div>
+            </div>
+            <div class="w-28 h-1.5 bg-ivory-200 rounded-full overflow-hidden">
+              <div id="total-progress-bar" class="h-full bg-gradient-to-r from-bronze-500 to-bronze-400 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <button type="button" onclick="openBackupModal('export')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-ivory-100 hover:bg-ivory-200 text-obsidian-800 border border-ivory-300 transition-all active:scale-[0.98]">
+            <svg class="w-3.5 h-3.5 text-bronze-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            <span>Данные / JSON</span>
+          </button>
+
+          <button type="button" onclick="openResetModal()" class="p-1.5 rounded-xl text-obsidian-500 hover:text-bronze-700 hover:bg-ivory-200/70 transition-colors" title="Сбросить прогресс">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0114.65-3.35L20 7M20 15a9 9 0 01-14.65 3.35L4 17"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Нижний ряд навигации: чёткие разделы -->
+      <nav class="flex items-center gap-1 sm:gap-2 overflow-x-auto border-t border-ivory-200/90 py-1.5 -mb-px" aria-label="Разделы приложения">
+        <button type="button" id="nav-cover" onclick="switchTab('cover')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2">
+          <span>Титул и обзор</span>
+        </button>
+        <button type="button" id="nav-prep" onclick="switchTab('prep')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2">
+          <span>Подготовка под грунт</span>
+          <span class="font-mono text-[11px] px-1.5 py-0.5 rounded-md bg-ivory-200/80 text-obsidian-700">25</span>
+        </button>
+        <button type="button" id="nav-primer" onclick="switchTab('primer')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2">
+          <span>Грунтование</span>
+          <span class="font-mono text-[11px] px-1.5 py-0.5 rounded-md bg-ivory-200/80 text-obsidian-700">12</span>
+        </button>
+        <button type="button" id="nav-guide" onclick="switchTab('guide')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2">
+          <span>Справочник</span>
+          <span class="font-mono text-[11px] px-1.5 py-0.5 rounded-md bg-ivory-200/80 text-obsidian-700">TDS</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ОСНОВНОЙ КОНТЕНТ -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-10">
+
+    <!-- =====================================================================
+         РАЗДЕЛ 0: ЗАГЛАВНАЯ СТРАНИЦА (HERO / COVER VIEW)
+         ===================================================================== -->
+    <section id="cover-view" class="view-enter space-y-10">
+      <!-- Главный титульный блок -->
+      <div class="relative rounded-3xl bg-ivory-100/85 border border-ivory-300/90 p-6 sm:p-10 lg:p-12 shadow-editorial overflow-hidden">
+        <!-- Тонкий декоративный акцент в правом верхнем углу -->
+        <div class="hidden lg:block absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-bronze-400/12 via-bronze-100/20 to-transparent pointer-events-none"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center relative">
+          <!-- Левая колонка: манифест и кнопки входа -->
+          <div class="lg:col-span-7 space-y-5">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ivory-50 border border-ivory-300 text-xs font-medium text-bronze-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-bronze-500"></span>
+              <span>Профессиональный журнал кузовной подготовки</span>
+            </div>
+
+            <h1 class="font-serif text-4xl sm:text-5xl lg:text-[3.45rem] font-semibold text-obsidian-900 leading-[1.08] tracking-tight">
+              80% безупречного покрытия рождается <span class="italic font-medium text-bronze-700">до первого слоя</span> грунта
+            </h1>
+
+            <p class="text-sm sm:text-base text-obsidian-600 leading-relaxed max-w-2xl">
+              Системный рабочий атлас для освоения подготовки поверхности, выведения геометрии и нанесения грунтов. Фиксируйте личный уровень от <span class="font-mono text-xs font-semibold text-obsidian-800">1★</span> до <span class="font-mono text-xs font-semibold text-obsidian-800">3★</span>, опирайтесь на схемы операций и храните заметки по материалам и настройкам оборудования.
+            </p>
+
+            <!-- Кнопки входа в трекер -->
+            <div class="pt-2 flex flex-wrap items-center gap-3">
+              <button type="button" id="cover-primary-cta" onclick="enterWorkspace()" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-sm font-semibold bg-obsidian-900 hover:bg-obsidian-800 text-ivory-50 border border-obsidian-900 shadow-card-subtle transition-all hover:-translate-y-0.5 active:translate-y-0">
+                <span id="cover-cta-label">Открыть трекер</span>
+                <svg class="w-4 h-4 text-bronze-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+              </button>
+
+              <button type="button" onclick="switchTab('prep')" class="inline-flex items-center gap-2 px-4 py-3.5 rounded-2xl text-sm font-medium bg-ivory-50 hover:bg-ivory-200/70 text-obsidian-800 border border-ivory-300 transition-all">
+                <span>Подготовка · 25</span>
+              </button>
+
+              <button type="button" onclick="switchTab('primer')" class="inline-flex items-center gap-2 px-4 py-3.5 rounded-2xl text-sm font-medium bg-ivory-50 hover:bg-ivory-200/70 text-obsidian-800 border border-ivory-300 transition-all">
+                <span>Грунтование · 12</span>
+              </button>
+
+              <button type="button" onclick="switchTab('guide')" class="inline-flex items-center gap-2 px-4 py-3.5 rounded-2xl text-sm font-medium bg-transparent hover:bg-ivory-200/50 text-obsidian-700 border border-transparent hover:border-ivory-300 transition-all">
+                <span>Справочник</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Правая колонка: карточка текущего состояния мастерства -->
+          <div class="lg:col-span-5">
+            <div class="rounded-2xl bg-ivory-50 border border-ivory-300/90 p-5 sm:p-6 shadow-card-subtle space-y-5">
+              <div class="flex items-start justify-between gap-3 pb-4 border-b border-ivory-200">
+                <div>
+                  <div class="text-[11px] font-mono uppercase tracking-wider text-obsidian-500">Текущий статус</div>
+                  <div id="cover-rank-title" class="font-serif text-2xl font-semibold text-obsidian-900 mt-0.5">Новичок в боксе</div>
+                </div>
+                <div class="text-right">
+                  <div id="cover-percent" class="font-mono text-2xl font-bold text-bronze-700">0%</div>
+                  <div id="cover-stars-ratio" class="font-mono text-[11px] text-obsidian-500">0 / 111 ★</div>
+                </div>
+              </div>
+
+              <!-- Прогресс по двум дисциплинам -->
+              <div class="space-y-3.5">
+                <div>
+                  <div class="flex justify-between text-xs mb-1.5">
+                    <span class="font-medium text-obsidian-800">Подготовка под грунт (25 навыков)</span>
+                    <span id="cover-prep-metric" class="font-mono font-semibold text-obsidian-700">0 / 75 ★</span>
+                  </div>
+                  <div class="h-1.5 bg-ivory-200 rounded-full overflow-hidden">
+                    <div id="cover-prep-bar" class="h-full bg-bronze-600 rounded-full transition-all duration-500" style="width: 0%"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs mb-1.5">
+                    <span class="font-medium text-obsidian-800">Грунтование (12 этапов)</span>
+                    <span id="cover-primer-metric" class="font-mono font-semibold text-obsidian-700">0 / 36 ★</span>
+                  </div>
+                  <div class="h-1.5 bg-ivory-200 rounded-full overflow-hidden">
+                    <div id="cover-primer-bar" class="h-full bg-patina-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Краткая сводка по освоенным этапам и заметкам -->
+              <div class="grid grid-cols-3 gap-2.5 pt-2">
+                <div class="rounded-xl bg-ivory-100/90 border border-ivory-200 p-3 text-center">
+                  <div id="cover-mastered-count" class="font-mono text-lg font-bold text-patina-600">0</div>
+                  <div class="text-[11px] text-obsidian-600">Навыков на 3★</div>
+                </div>
+                <div class="rounded-xl bg-ivory-100/90 border border-ivory-200 p-3 text-center">
+                  <div id="cover-active-count" class="font-mono text-lg font-bold text-bronze-700">0</div>
+                  <div class="text-[11px] text-obsidian-600">В работе</div>
+                </div>
+                <div class="rounded-xl bg-ivory-100/90 border border-ivory-200 p-3 text-center">
+                  <div id="cover-notes-count" class="font-mono text-lg font-bold text-obsidian-900">0</div>
+                  <div class="text-[11px] text-obsidian-600">Заметок</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Архитектура системы: три опоры процесса -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <button type="button" onclick="switchTab('prep')" class="group text-left rounded-2xl bg-ivory-50 hover:bg-ivory-100/70 border border-ivory-300/85 p-6 shadow-card-subtle hover:shadow-card-elevated transition-all">
+          <div class="flex items-center justify-between mb-4">
+            <span class="font-mono text-xs font-semibold text-bronze-700 bg-bronze-100 px-2.5 py-1 rounded-lg">I · ПОДГОТОВКА</span>
+            <span class="font-mono text-xs text-obsidian-500">01–25</span>
+          </div>
+          <h2 class="font-serif text-2xl font-semibold text-obsidian-900 group-hover:text-bronze-700 transition-colors mb-2">
+            Геометрия, риска и изоляция
+          </h2>
+          <p class="text-xs sm:text-sm text-obsidian-600 leading-relaxed mb-4">
+            От проверки СИЗ, теста старого покрытия и правила шага зерна до работы рубанком крест-накрест, проявочной пудры и маскировки проёмов.
+          </p>
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-bronze-700">
+            <span>Перейти к 25 навыкам</span>
+            <span class="group-hover:translate-x-1 transition-transform">→</span>
+          </span>
+        </button>
+
+        <button type="button" onclick="switchTab('primer')" class="group text-left rounded-2xl bg-ivory-50 hover:bg-ivory-100/70 border border-ivory-300/85 p-6 shadow-card-subtle hover:shadow-card-elevated transition-all">
+          <div class="flex items-center justify-between mb-4">
+            <span class="font-mono text-xs font-semibold text-patina-600 bg-patina-100 px-2.5 py-1 rounded-lg">II · ГРУНТОВАНИЕ</span>
+            <span class="font-mono text-xs text-obsidian-500">01–12</span>
+          </div>
+          <h2 class="font-serif text-2xl font-semibold text-obsidian-900 group-hover:text-patina-600 transition-colors mb-2">
+            Подложка, факел и выдержка
+          </h2>
+          <p class="text-xs sm:text-sm text-obsidian-600 leading-relaxed mb-4">
+            Подбор системы и оттенка подложки, настройка дюзы и давления, нанесение «от меньшего к большему», межслойная выдержка и финальный <span class="font-mono text-xs">P500</span>.
+          </p>
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-patina-600">
+            <span>Перейти к 12 этапам</span>
+            <span class="group-hover:translate-x-1 transition-transform">→</span>
+          </span>
+        </button>
+
+        <button type="button" onclick="switchTab('guide')" class="group text-left rounded-2xl bg-ivory-50 hover:bg-ivory-100/70 border border-ivory-300/85 p-6 shadow-card-subtle hover:shadow-card-elevated transition-all">
+          <div class="flex items-center justify-between mb-4">
+            <span class="font-mono text-xs font-semibold text-obsidian-800 bg-ivory-200 px-2.5 py-1 rounded-lg">III · СПРАВОЧНИК</span>
+            <span class="font-mono text-xs text-obsidian-500">P80–P800</span>
+          </div>
+          <h2 class="font-serif text-2xl font-semibold text-obsidian-900 group-hover:text-bronze-700 transition-colors mb-2">
+            Таблицы зерна, дюзы и дефекты
+          </h2>
+          <p class="text-xs sm:text-sm text-obsidian-600 leading-relaxed mb-4">
+            Быстрая сверка градаций абразивов, базовые параметры краскопульта для разных грунтов и диагностика оконтуривания, просадки и вскипания.
+          </p>
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-obsidian-800">
+            <span>Открыть справочник</span>
+            <span class="group-hover:translate-x-1 transition-transform">→</span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Последние заметки мастера (если есть) -->
+      <div id="cover-notes-section" class="hidden rounded-2xl bg-ivory-50 border border-ivory-300/85 p-6 shadow-card-subtle">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-serif text-2xl font-semibold text-obsidian-900">Последние записи в журнале</h3>
+            <p class="text-xs text-obsidian-500">Ваши личные заметки по материалам и настройкам из карточек этапов</p>
+          </div>
+        </div>
+        <div id="cover-recent-notes" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Заполняется через JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         РАЗДЕЛ 1 и 2: РАБОЧИЙ ТРЕКЕР (ПОДГОТОВКА · 25 / ГРУНТОВАНИЕ · 12)
+         ===================================================================== -->
+    <section id="workspace-view" class="hidden view-enter space-y-6">
+      <!-- Заголовок текущего раздела -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-ivory-300/80">
+        <div>
+          <div id="workspace-kicker" class="font-mono text-xs uppercase tracking-wider text-bronze-700 font-semibold mb-1">
+            Раздел I · Подготовка поверхности
+          </div>
+          <h1 id="workspace-title" class="font-serif text-3xl sm:text-4xl font-semibold text-obsidian-900 tracking-tight">
+            Подготовка под грунт
+          </h1>
+          <p id="workspace-subtitle" class="text-xs sm:text-sm text-obsidian-600 mt-1 max-w-2xl">
+            25 последовательных навыков от техники безопасности и дефектовки до выведения плоскости и маскировки проёмов.
+          </p>
+        </div>
+
+        <!-- Локальный прогресс раздела -->
+        <div class="flex items-center gap-3 bg-ivory-100/90 border border-ivory-300/80 rounded-2xl px-4 py-2.5 shrink-0">
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-obsidian-500 font-medium">Звёзды раздела</div>
+            <div id="workspace-stars-metric" class="font-mono text-sm font-bold text-obsidian-900">0 / 75 ★</div>
+          </div>
+          <div class="h-7 w-px bg-ivory-300"></div>
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-obsidian-500 font-medium">Освоено 3★</div>
+            <div id="workspace-mastered-metric" class="font-mono text-sm font-bold text-patina-600">0 / 25</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Панель управления: поиск, фильтры статуса и переключатель карты -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-ivory-100/60 border border-ivory-300/75 rounded-2xl p-3">
+        <!-- Поиск по навыкам -->
+        <div class="relative flex-1 max-w-md">
+          <svg class="w-4 h-4 text-obsidian-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/></svg>
+          <input type="text" id="skill-search-input" oninput="handleSearchInput(this.value)" placeholder="Поиск по этапу, абразиву или технологии..." class="w-full pl-9 pr-8 py-2 rounded-xl bg-ivory-50 border border-ivory-300/90 focus:border-bronze-500 focus:ring-2 focus:ring-bronze-400/20 text-xs sm:text-sm text-obsidian-900 placeholder:text-obsidian-500/80 outline-none transition-all" />
+          <button type="button" id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-obsidian-500 hover:text-obsidian-900 text-xs px-1" title="Очистить поиск">✕</button>
+        </div>
+
+        <!-- Фильтры статуса и карта уровней -->
+        <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2">
+          <div class="inline-flex p-1 bg-ivory-50 rounded-xl border border-ivory-300/80">
+            <button type="button" onclick="setFilter('all')" data-filter="all" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-900 text-ivory-50 transition-all">
+              Все
+            </button>
+            <button type="button" onclick="setFilter('in-progress')" data-filter="in-progress" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-obsidian-600 hover:text-obsidian-900 transition-all">
+              В работе
+            </button>
+            <button type="button" onclick="setFilter('mastered')" data-filter="mastered" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-obsidian-600 hover:text-obsidian-900 transition-all">
+              На 3★
+            </button>
+          </div>
+
+          <button type="button" id="toggle-map-btn" onclick="toggleRoadmap()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-ivory-50 hover:bg-ivory-200/70 text-obsidian-800 border border-ivory-300/80 transition-all">
+            <svg class="w-3.5 h-3.5 text-bronze-700" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span id="toggle-map-label">Карта уровней</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Компактная легенда звёзд -->
+      <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-obsidian-600 px-1">
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-1">
+          <span><strong class="font-mono text-starlight-500">1★</strong> Теория / проба</span>
+          <span><strong class="font-mono text-starlight-500">2★</strong> Практика с контролем</span>
+          <span><strong class="font-mono text-patina-600">3★</strong> Уверенно без замечаний</span>
+        </div>
+        <span class="text-[11px] text-obsidian-500">Нажмите на карточку, чтобы открыть схему, совет и заметки</span>
+      </div>
+
+      <!-- Компактная карта уровней -->
+      <section id="roadmap-section" class="rounded-2xl bg-ivory-50 border border-ivory-300/85 p-4 sm:p-5 shadow-card-subtle transition-all">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-xs font-semibold uppercase tracking-wider text-bronze-700">Карта этапов</span>
+            <span id="roadmap-summary" class="font-mono text-xs text-obsidian-500">0 / 25 на 3★</span>
+          </div>
+          <span class="text-[11px] text-obsidian-500 hidden sm:inline">Клик по номеру открывает этап</span>
+        </div>
+        <div id="roadmap-grid" class="grid grid-cols-5 sm:grid-cols-10 md:grid-cols-13 gap-1.5">
+          <!-- Заполняется JS -->
+        </div>
+      </section>
+
+      <!-- Список карточек навыков по категориям -->
+      <div id="skills-container" class="space-y-9">
+        <!-- Заполняется JS -->
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         РАЗДЕЛ 3: СПРАВОЧНИК (ТАБЛИЦЫ АБРАЗИВОВ, ДЮЗ И ДЕФЕКТОВ)
+         ===================================================================== -->
+    <section id="guide-view" class="hidden view-enter space-y-8">
+      <div class="pb-4 border-b border-ivory-300/80">
+        <div class="font-mono text-xs uppercase tracking-wider text-bronze-700 font-semibold mb-1">
+          Раздел III · Технический справочник
+        </div>
+        <h1 class="font-serif text-3xl sm:text-4xl font-semibold text-obsidian-900 tracking-tight">
+          Градации, настройки и диагностика
+        </h1>
+        <p class="text-xs sm:text-sm text-obsidian-600 mt-1 max-w-2xl">
+          Опорные значения для работы в боксе. Всегда сверяйтесь с техническим листом (TDS) конкретного производителя материалов.
+        </p>
+      </div>
+
+      <!-- Таблица градаций абразивов -->
+      <div class="rounded-2xl bg-ivory-50 border border-ivory-300/90 p-5 sm:p-6 shadow-card-subtle">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="font-serif text-2xl font-semibold text-obsidian-900">Градации абразивов (P80 – P800)</h2>
+            <p class="text-xs text-obsidian-600">Соблюдайте шаг зерна, чтобы исключить просадку риски и ступеньки на переходе</p>
+          </div>
+          <span class="font-mono text-xs px-2.5 py-1 rounded-lg bg-ivory-100 border border-ivory-300 text-obsidian-700 self-start sm:self-auto">
+            Шаг ≤ ×1.5 / +100
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="border-b border-ivory-300 text-obsidian-500 font-mono text-[11px] uppercase tracking-wider bg-ivory-100/70">
+                <th class="py-3 px-3.5 rounded-tl-xl">Зерно</th>
+                <th class="py-3 px-3.5">Назначение операции</th>
+                <th class="py-3 px-3.5">Инструмент и ход</th>
+                <th class="py-3 px-3.5 rounded-tr-xl">Контрольное правило</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-ivory-200">
+              <tr class="hover:bg-ivory-100/50 transition-colors">
+                <td class="py-3.5 px-3.5 font-mono font-semibold text-bronze-700 whitespace-nowrap">P80 – P120</td>
+                <td class="py-3.5 px-3.5 text-obsidian-900 font-medium">Снятие старого ЛКП, коррозии и грубое выведение шпатлёвки</td>
+                <td class="py-3.5 px-3.5 font-mono text-xs text-obsidian-600">Рубанок / орбита 5.0 мм</td>
+                <td class="py-3.5 px-3.5 text-xs text-obsidian-600">Не заходить без нужды на тонкий металл и заводской катафорез</td>
+              </tr>
+              <tr class="hover:bg-ivory-100/50 transition-colors">
+                <td class="py-3.5 px-3.5 font-mono font-semibold text-bronze-700 whitespace-nowrap">P150 – P180</td>
+                <td class="py-3.5 px-3.5 text-obsidian-900 font-medium">Выравнивание универсальной и финишной шпатлёвки, расшлифовка</td>
+                <td class="py-3.5 px-3.5 font-mono text-xs text-obsidian-600">Рубанок / орбита 5.0 мм</td>
+                <td class="py-3.5 px-3.5 text-xs text-obsidian-600">Полностью убрать риску от P80–P120 перед переходом выше</td>
+              </tr>
+              <tr class="hover:bg-ivory-100/50 transition-colors">
+                <td class="py-3.5 px-3.5 font-mono font-semibold text-starlight-500 whitespace-nowrap">P240 – P320</td>
+                <td class="py-3.5 px-3.5 text-obsidian-900 font-medium">Финишная подготовка шпатлёвки и ореола под акриловый грунт</td>
+                <td class="py-3.5 px-3.5 font-mono text-xs text-obsidian-600">Орбита 5.0 / 2.5 мм + проставка</td>
+                <td class="py-3.5 px-3.5 text-xs text-obsidian-600">Оптимальная риска под грунт-наполнитель без просадки</td>
+              </tr>
+              <tr class="hover:bg-ivory-100/50 transition-colors">
+                <td class="py-3.5 px-3.5 font-mono font-semibold text-patina-600 whitespace-nowrap">P400 – P500</td>
+                <td class="py-3.5 px-3.5 text-obsidian-900 font-medium">Шлифовка выровненного грунта под базовое покрытие / металлик</td>
+                <td class="py-3.5 px-3.5 font-mono text-xs text-obsidian-600">Орбита 2.5 мм (насухую)</td>
+                <td class="py-3.5 px-3.5 text-xs text-obsidian-600">Под светлые металлики и серебро предпочтителен финиш P500</td>
+              </tr>
+              <tr class="hover:bg-ivory-100/50 transition-colors">
+                <td class="py-3.5 px-3.5 font-mono font-semibold text-patina-600 whitespace-nowrap">P600 – P800</td>
+                <td class="py-3.5 px-3.5 text-obsidian-900 font-medium">Матирование зоны перехода под лак и деликатные участки</td>
+                <td class="py-3.5 px-3.5 font-mono text-xs text-obsidian-600">Мягкий блок / серый скотч-брайт</td>
+                <td class="py-3.5 px-3.5 text-xs text-obsidian-600">Равномерная матовость без глянцевых пятен и продавов</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Настройки краскопульта -->
+      <div class="rounded-2xl bg-ivory-50 border border-ivory-300/90 p-5 sm:p-6 shadow-card-subtle">
+        <h2 class="font-serif text-2xl font-semibold text-obsidian-900 mb-1">Базовые параметры краскопульта под грунты</h2>
+        <p class="text-xs text-obsidian-600 mb-5">Ориентировочные значения для стандартных систем 2K / 1K</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="rounded-xl bg-ivory-100/75 border border-ivory-200 p-4 space-y-2">
+            <div class="font-mono text-xs font-semibold text-bronze-700">WASH PRIMER · КИСЛОТНЫЙ</div>
+            <ul class="space-y-1 text-xs text-obsidian-700 font-mono">
+              <li>Дюза: <strong>1.3–1.4 мм</strong></li>
+              <li>Давление: <strong>1.8–2.0 бар</strong></li>
+              <li>Дистанция: <strong>15–20 см</strong></li>
+            </ul>
+            <p class="text-xs text-obsidian-600 pt-1 border-t border-ivory-200">
+              1 тонкий слой. Не перекрывать шпатлёвкой и эпоксидным грунтом.
+            </p>
+          </div>
+
+          <div class="rounded-xl bg-ivory-100/75 border border-ivory-200 p-4 space-y-2">
+            <div class="font-mono text-xs font-semibold text-patina-600">EPOXY · ЭПОКСИДНЫЙ</div>
+            <ul class="space-y-1 text-xs text-obsidian-700 font-mono">
+              <li>Дюза: <strong>1.4–1.7 мм</strong></li>
+              <li>Давление: <strong>1.8–2.2 бар</strong></li>
+              <li>Дистанция: <strong>15–20 см</strong></li>
+            </ul>
+            <p class="text-xs text-obsidian-600 pt-1 border-t border-ivory-200">
+              1–2 слоя с выдержкой 10–15 мин. Надёжная антикоррозионная изоляция.
+            </p>
+          </div>
+
+          <div class="rounded-xl bg-ivory-100/75 border border-ivory-200 p-4 space-y-2">
+            <div class="font-mono text-xs font-semibold text-obsidian-900">FILLER · НАПОЛНИТЕЛЬ</div>
+            <ul class="space-y-1 text-xs text-obsidian-700 font-mono">
+              <li>Дюза: <strong>1.6–1.8 мм</strong></li>
+              <li>Давление: <strong>2.0–2.2 бар</strong></li>
+              <li>Дистанция: <strong>15–18 см</strong></li>
+            </ul>
+            <p class="text-xs text-obsidian-600 pt-1 border-t border-ivory-200">
+              2–3 слоя «от меньшего к большему», межслойка 7–15 мин до матовости.
+            </p>
+          </div>
+
+          <div class="rounded-xl bg-ivory-100/75 border border-ivory-200 p-4 space-y-2">
+            <div class="font-mono text-xs font-semibold text-starlight-500">WET-ON-WET · МОКРЫЙ</div>
+            <ul class="space-y-1 text-xs text-obsidian-700 font-mono">
+              <li>Дюза: <strong>1.3–1.4 мм</strong></li>
+              <li>Давление: <strong>1.8–2.0 бар</strong></li>
+              <li>Дистанция: <strong>15–20 см</strong></li>
+            </ul>
+            <p class="text-xs text-obsidian-600 pt-1 border-t border-ivory-200">
+              1.5–2 гладких слоя без сухого напыла; окраска базой после выдержки.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Диагностика дефектов -->
+      <div class="rounded-2xl bg-ivory-50 border border-ivory-300/90 p-5 sm:p-6 shadow-card-subtle">
+        <h2 class="font-serif text-2xl font-semibold text-obsidian-900 mb-4">Диагностика типичных дефектов</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="rounded-xl bg-ivory-100/60 border border-ivory-200 p-4">
+            <div class="font-mono text-xs font-semibold text-bronze-700 mb-1">01 · ОКОНТУРИВАНИЕ КРОМКИ</div>
+            <p class="text-xs text-obsidian-700 mb-1.5">Резкая ступенька расшлифовки или агрессивный разбавитель по незакрытому краю.</p>
+            <p class="text-xs text-patina-600 font-medium">Делайте плавный переход 20–30 мм и перекрывайте зону эпоксидным грунтом.</p>
+          </div>
+          <div class="rounded-xl bg-ivory-100/60 border border-ivory-200 p-4">
+            <div class="font-mono text-xs font-semibold text-bronze-700 mb-1">02 · ПРОСАДКА РИСКИ ПОСЛЕ ОКРАСКИ</div>
+            <p class="text-xs text-obsidian-700 mb-1.5">Пропуск градации абразива или шлифовка недосушенного грунта.</p>
+            <p class="text-xs text-patina-600 font-medium">Соблюдайте шаг зерна и выдерживайте полную сушку по TDS.</p>
+          </div>
+          <div class="rounded-xl bg-ivory-100/60 border border-ivory-200 p-4">
+            <div class="font-mono text-xs font-semibold text-bronze-700 mb-1">03 · ПОДРЫВ СТАРОГО ПОКРЫТИЯ</div>
+            <p class="text-xs text-obsidian-700 mb-1.5">1K аэрозоль или чувствительная основа под слоем 2K материалов.</p>
+            <p class="text-xs text-patina-600 font-medium">Проводите тест растворителем до работы и изолируйте проблемный участок.</p>
+          </div>
+          <div class="rounded-xl bg-ivory-100/60 border border-ivory-200 p-4">
+            <div class="font-mono text-xs font-semibold text-bronze-700 mb-1">04 · ВСКИПАНИЕ ГРУНТА</div>
+            <p class="text-xs text-obsidian-700 mb-1.5">Толстые слои без межслойной выдержки или слишком быстрый разбавитель в тепле.</p>
+            <p class="text-xs text-patina-600 font-medium">Ждите матовости слоя (7–15 мин) и подбирайте разбавитель по температуре.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ПОДВАЛ -->
+  <footer class="border-t border-ivory-300/80 bg-ivory-100/50 py-5 px-4 text-center text-xs text-obsidian-500 mt-12">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>Малярный Бокс · Рабочий атлас подготовки и грунтования</span>
+      <span class="font-mono text-[11px]">Автосохранение в браузере · Экспорт и импорт JSON</span>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       МОДАЛЬНОЕ ОКНО 1: КАРТОЧКА НАВЫКА (СХЕМА, ТЕХНОЛОГИЯ, СОВЕТ, ЗАМЕТКИ)
+       ===================================================================== -->
+  <div id="skill-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-5 bg-obsidian-900/55 backdrop-blur-xs overflow-y-auto">
+    <div class="bg-ivory-50 border border-ivory-300 rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden animate-modal my-auto">
+      <!-- Шапка -->
+      <div class="px-5 sm:px-7 py-4 bg-ivory-100 border-b border-ivory-300/80 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span id="modal-skill-badge" class="font-mono text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-obsidian-900 text-ivory-50">
+              Этап #1
+            </span>
+            <span id="modal-skill-category" class="text-xs font-medium text-bronze-700">Категория</span>
+          </div>
+          <h3 id="modal-skill-title" class="font-serif text-2xl sm:text-[1.7rem] font-semibold text-obsidian-900 leading-snug">
+            Название навыка
+          </h3>
+        </div>
+        <button type="button" onclick="closeSkillModal()" class="p-2 rounded-xl bg-ivory-50 hover:bg-ivory-200 text-obsidian-700 border border-ivory-300/80 transition-colors shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Содержимое -->
+      <div class="p-5 sm:p-7 space-y-5 max-h-[78vh] overflow-y-auto">
+        <!-- Оценка звёздами -->
+        <div class="rounded-2xl bg-ivory-100/70 border border-ivory-300/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div class="font-mono text-[11px] uppercase tracking-wider text-obsidian-500">Уровень владения</div>
+            <div id="modal-star-status" class="text-xs sm:text-sm font-semibold text-obsidian-900 mt-0.5">Не начато (0★)</div>
+          </div>
+          <div id="modal-stars-picker" class="flex items-center gap-1.5">
+            <!-- Заполняется JS -->
+          </div>
+        </div>
+
+        <!-- Схема операции SVG -->
+        <div class="rounded-2xl bg-ivory-100/50 border border-ivory-300/80 p-4">
+          <div class="flex items-center justify-between gap-2 mb-2.5">
+            <span class="font-mono text-[11px] uppercase tracking-wider text-obsidian-500 font-semibold">Схема операции</span>
+            <span id="modal-svg-caption" class="text-xs text-bronze-700 font-medium">Визуальный ориентир</span>
+          </div>
+          <div id="modal-svg-container" class="w-full flex items-center justify-center rounded-xl bg-ivory-50 border border-ivory-200 p-2.5">
+            <!-- Вставляется SVG -->
+          </div>
+        </div>
+
+        <!-- Технология -->
+        <div>
+          <h4 class="font-mono text-[11px] uppercase tracking-wider text-obsidian-500 font-semibold mb-1.5">Технология выполнения</h4>
+          <p id="modal-skill-desc" class="text-sm text-obsidian-800 leading-relaxed bg-ivory-100/50 p-4 rounded-2xl border border-ivory-200"></p>
+        </div>
+
+        <!-- Практический совет -->
+        <div class="rounded-2xl bg-bronze-100/75 border border-bronze-400/40 p-4">
+          <div class="font-mono text-[11px] uppercase tracking-wider text-bronze-700 font-semibold mb-1">
+            Практический совет из бокса
+          </div>
+          <p id="modal-skill-tip" class="text-sm text-obsidian-900 leading-relaxed"></p>
+        </div>
+
+        <!-- Личные заметки -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="modal-note-input" class="font-mono text-[11px] uppercase tracking-wider text-obsidian-500 font-semibold">
+              Личные заметки (материалы, давление, выводы)
+            </label>
+            <span id="note-saved-indicator" class="font-mono text-xs text-patina-600 font-medium opacity-0 transition-opacity">
+              Сохранено
+            </span>
+          </div>
+          <textarea id="modal-note-input" rows="3" placeholder="Запишите марку грунта, размер дюзы, давление или наблюдения по детали..." class="w-full rounded-2xl bg-ivory-50 border border-ivory-300 focus:border-bronze-500 focus:ring-2 focus:ring-bronze-400/20 p-3.5 text-sm text-obsidian-900 placeholder:text-obsidian-500/70 outline-none transition-all"></textarea>
+        </div>
+      </div>
+
+      <!-- Подвал навигации по этапам -->
+      <div class="px-5 sm:px-7 py-3.5 bg-ivory-100 border-t border-ivory-300/80 flex items-center justify-between gap-2">
+        <button type="button" id="modal-prev-btn" onclick="navigateModalSkill(-1)" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-ivory-50 hover:bg-ivory-200/80 text-obsidian-800 border border-ivory-300 transition disabled:opacity-35">
+          ← Предыдущий
+        </button>
+        <button type="button" onclick="closeSkillModal()" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-obsidian-900 hover:bg-obsidian-800 text-ivory-50 transition">
+          Готово
+        </button>
+        <button type="button" id="modal-next-btn" onclick="navigateModalSkill(1)" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-ivory-50 hover:bg-ivory-200/80 text-obsidian-800 border border-ivory-300 transition disabled:opacity-35">
+          Следующий →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       МОДАЛЬНОЕ ОКНО 2: ЭКСПОРТ И ИМПОРТ JSON / КОДА ПЕРЕНОСА
+       ===================================================================== -->
+  <div id="backup-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-obsidian-900/55 backdrop-blur-xs">
+    <div class="bg-ivory-50 border border-ivory-300 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden animate-modal">
+      <div class="px-6 py-4 bg-ivory-100 border-b border-ivory-300/80 flex items-center justify-between">
+        <h3 class="font-serif text-2xl font-semibold text-obsidian-900">Синхронизация прогресса</h3>
+        <button type="button" onclick="closeBackupModal()" class="p-1.5 rounded-xl bg-ivory-50 hover:bg-ivory-200 text-obsidian-700 border border-ivory-300/80">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="px-6 pt-4">
+        <div class="grid grid-cols-2 p-1 bg-ivory-200/80 rounded-xl">
+          <button type="button" id="backup-tab-export" onclick="switchBackupTab('export')" class="py-2 rounded-lg text-xs font-semibold bg-ivory-50 text-obsidian-900 shadow-2xs transition-all">
+            Экспорт (JSON / Код)
+          </button>
+          <button type="button" id="backup-tab-import" onclick="switchBackupTab('import')" class="py-2 rounded-lg text-xs font-medium text-obsidian-600 transition-all">
+            Импорт данных
+          </button>
+        </div>
+      </div>
+
+      <!-- Экспорт -->
+      <div id="backup-export-pane" class="p-6 space-y-4">
+        <p class="text-xs text-obsidian-600 leading-relaxed">
+          Сохраните резервную копию в файл <span class="font-mono">.json</span> или скопируйте код переноса, чтобы открыть свой прогресс на другом устройстве.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <button type="button" onclick="downloadBackupFile()" class="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold bg-obsidian-900 hover:bg-obsidian-800 text-ivory-50 transition active:scale-[0.99]">
+            Скачать .JSON файл
+          </button>
+          <button type="button" onclick="copyBackupCode()" class="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold bg-ivory-200 hover:bg-ivory-300/80 text-obsidian-900 transition active:scale-[0.99]">
+            Копировать код
+          </button>
+        </div>
+        <div>
+          <label for="export-json-textarea" class="block font-mono text-[11px] uppercase tracking-wider text-obsidian-500 mb-1">Код переноса (JSON)</label>
+          <textarea id="export-json-textarea" readonly rows="5" class="w-full rounded-xl bg-ivory-100 border border-ivory-300 p-3 text-xs font-mono text-obsidian-800 outline-none select-all"></textarea>
+        </div>
+      </div>
+
+      <!-- Импорт -->
+      <div id="backup-import-pane" class="hidden p-6 space-y-4">
+        <p class="text-xs text-obsidian-600 leading-relaxed">
+          Загрузите ранее сохранённый <span class="font-mono">.json</span> файл или вставьте скопированный JSON-код в поле ниже.
+        </p>
+        <label class="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border border-dashed border-bronze-500/60 hover:bg-ivory-100 bg-ivory-50 cursor-pointer text-xs font-semibold text-obsidian-800 transition">
+          <span>Выбрать файл .json</span>
+          <input type="file" id="import-file-input" accept=".json,application/json" class="hidden" onchange="handleImportFile(event)" />
+        </label>
+        <div>
+          <label for="import-json-textarea" class="block font-mono text-[11px] uppercase tracking-wider text-obsidian-500 mb-1">JSON-код для восстановления</label>
+          <textarea id="import-json-textarea" rows="5" placeholder='{"version":1,"stars":{...},"notes":{...}}' class="w-full rounded-xl bg-ivory-50 border border-ivory-300 focus:border-bronze-500 p-3 text-xs font-mono text-obsidian-900 outline-none"></textarea>
+        </div>
+        <button type="button" onclick="applyImportedJson()" class="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold bg-patina-600 hover:bg-patina-500 text-ivory-50 transition active:scale-[0.99]">
+          Восстановить прогресс
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       МОДАЛЬНОЕ ОКНО 3: ПОДТВЕРЖДЕНИЕ СБРОСА
+       ===================================================================== -->
+  <div id="reset-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-obsidian-900/55 backdrop-blur-xs">
+    <div class="bg-ivory-50 border border-ivory-300 rounded-3xl max-w-md w-full p-6 shadow-2xl animate-modal">
+      <h3 class="font-serif text-2xl font-semibold text-obsidian-900 mb-2">Сбросить весь прогресс?</h3>
+      <p class="text-xs sm:text-sm text-obsidian-600 mb-6 leading-relaxed">
+        Все оценки в звёздах и личные заметки по 37 этапам будут удалены. При необходимости предварительно выполните экспорт в JSON.
+      </p>
+      <div class="flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeResetModal()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-ivory-200 hover:bg-ivory-300/80 text-obsidian-800 transition">
+          Отмена
+        </button>
+        <button type="button" onclick="confirmResetProgress()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-bronze-700 hover:bg-obsidian-900 text-ivory-50 transition">
+          Сбросить данные
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. СХЕМАТИЧНЫЕ SVG-ИЛЛЮСТРАЦИИ ОПЕРАЦИЙ
+       ========================================================================== */
+    const SVG_DIAGRAMS = {
+      ppe: {
+        caption: 'Защита дыхания, зрения и кожи при подготовке и распыле',
+        svg: `<svg viewBox="0 0 360 116" class="w-full max-w-md h-auto">
+          <rect x="12" y="12" width="104" height="92" rx="12" fill="#F3ECE1" stroke="#D6C5AC"/>
+          <circle cx="64" cy="44" r="16" fill="#9A6E3B" opacity="0.14" stroke="#7B552A" stroke-width="1.6"/>
+          <path d="M51 48 Q64 62 77 48" fill="none" stroke="#7B552A" stroke-width="2"/>
+          <text x="64" y="82" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1F1B18">Фильтры A2P3</text>
+          <text x="64" y="95" text-anchor="middle" font-size="8" fill="#635950">Аэрозоль и пыль</text>
+
+          <rect x="128" y="12" width="104" height="92" rx="12" fill="#F3ECE1" stroke="#D6C5AC"/>
+          <rect x="152" y="33" width="56" height="22" rx="7" fill="#E6EFEA" stroke="#3F6F58" stroke-width="1.6"/>
+          <line x1="180" y1="33" x2="180" y2="55" stroke="#3F6F58" stroke-width="1.4"/>
+          <text x="180" y="82" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1F1B18">Очки и нитрил</text>
+          <text x="180" y="95" text-anchor="middle" font-size="8" fill="#635950">Химическая стойкость</text>
+
+          <rect x="244" y="12" width="104" height="92" rx="12" fill="#F3ECE1" stroke="#D6C5AC"/>
+          <path d="M281 33 L311 33 L316 60 L276 60 Z" fill="#E7DCCB" stroke="#635950" stroke-width="1.6"/>
+          <text x="296" y="82" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1F1B18">Антистатик</text>
+          <text x="296" y="95" text-anchor="middle" font-size="8" fill="#635950">Без ворса</text>
+        </svg>`
+      },
+
+      degrease: {
+        caption: 'Метод двух салфеток: нанесение антисиликона и сухой съём',
+        svg: `<svg viewBox="0 0 360 112" class="w-full max-w-md h-auto">
+          <rect x="18" y="66" width="324" height="20" rx="5" fill="#E7DCCB" stroke="#BEA788"/>
+          <text x="180" y="80" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1F1B18">Поверхность детали</text>
+          <rect x="42" y="24" width="116" height="28" rx="8" fill="#E6EFEA" stroke="#3F6F58" stroke-width="1.6"/>
+          <text x="100" y="42" text-anchor="middle" font-size="9.5" font-weight="600" fill="#2E5643">1. Влажная салфетка</text>
+          <path d="M166 38 L194 38" stroke="#7B552A" stroke-width="1.8"/>
+          <polygon points="194,34 201,38 194,42" fill="#7B552A"/>
+          <rect x="205" y="24" width="113" height="28" rx="8" fill="#F2E7D8" stroke="#9A6E3B" stroke-width="1.6"/>
+          <text x="261" y="42" text-anchor="middle" font-size="9.5" font-weight="600" fill="#5C3E1C">2. Сухой съём сразу</text>
+          <text x="180" y="102" text-anchor="middle" font-size="8.5" fill="#635950">Не давайте составу высохнуть самому — загрязнения останутся</text>
+        </svg>`
+      },
+
+      palpation: {
+        caption: 'Пальпация ладонью через тонкую салфетку под малым углом',
+        svg: `<svg viewBox="0 0 360 112" class="w-full max-w-md h-auto">
+          <path d="M20 74 Q140 74 180 61 Q220 74 340 74 L340 90 L20 90 Z" fill="#E7DCCB" stroke="#82776C" stroke-width="1.5"/>
+          <circle cx="180" cy="61" r="3.5" fill="#9A6E3B"/>
+          <path d="M115 41 Q180 34 245 41" fill="none" stroke="#3F6F58" stroke-width="2.4" stroke-linecap="round"/>
+          <text x="180" y="24" text-anchor="middle" font-size="9.5" font-weight="600" fill="#2E5643">Плавное скольжение ладони без нажима</text>
+          <text x="180" y="104" text-anchor="middle" font-size="8.5" fill="#635950">Тактильный контроль перепадов высоты, незаметных на глаз</text>
+        </svg>`
+      },
+
+      gritStep: {
+        caption: 'Последовательное снижение глубины риски с сохранением шага',
+        svg: `<svg viewBox="0 0 360 112" class="w-full max-w-md h-auto">
+          <rect x="14" y="24" width="66" height="42" rx="9" fill="#F2E7D8" stroke="#9A6E3B" stroke-width="1.5"/>
+          <text x="47" y="43" text-anchor="middle" font-size="11" font-weight="700" fill="#5C3E1C">P80</text>
+          <text x="47" y="56" text-anchor="middle" font-size="7.5" fill="#635950">Грубый съём</text>
+          <text x="91" y="49" text-anchor="middle" font-size="12" fill="#9A6E3B">→</text>
+
+          <rect x="102" y="24" width="66" height="42" rx="9" fill="#F7EFE0" stroke="#A87924" stroke-width="1.5"/>
+          <text x="135" y="43" text-anchor="middle" font-size="11" font-weight="700" fill="#7B552A">P150</text>
+          <text x="135" y="56" text-anchor="middle" font-size="7.5" fill="#635950">Выравнивание</text>
+          <text x="179" y="49" text-anchor="middle" font-size="12" fill="#9A6E3B">→</text>
+
+          <rect x="190" y="24" width="66" height="42" rx="9" fill="#E6EFEA" stroke="#3F6F58" stroke-width="1.5"/>
+          <text x="223" y="43" text-anchor="middle" font-size="11" font-weight="700" fill="#2E5643">P240</text>
+          <text x="223" y="56" text-anchor="middle" font-size="7.5" fill="#635950">Под грунт</text>
+          <text x="267" y="49" text-anchor="middle" font-size="12" fill="#9A6E3B">→</text>
+
+          <rect x="278" y="24" width="68" height="42" rx="9" fill="#E6EFEA" stroke="#2E5643" stroke-width="1.5"/>
+          <text x="312" y="43" text-anchor="middle" font-size="11" font-weight="700" fill="#2E5643">P320+</text>
+          <text x="312" y="56" text-anchor="middle" font-size="7.5" fill="#635950">Доводка</text>
+
+          <text x="180" y="92" text-anchor="middle" font-size="8.5" fill="#635950">Каждая градация перебивает риску предыдущей без пропуска ступеней</text>
+        </svg>`
+      },
+
+      featherEdge: {
+        caption: 'Расшлифовка кромки «пёрышком» шириной 20–30 мм без ступеньки',
+        svg: `<svg viewBox="0 0 360 116" class="w-full max-w-md h-auto">
+          <rect x="20" y="76" width="320" height="14" fill="#A69B90"/>
+          <text x="64" y="86" font-size="8.5" font-weight="600" fill="#1F1B18">Металл</text>
+          <polygon points="104,76 340,76 340,67 136,67" fill="#7D7267"/>
+          <polygon points="136,67 340,67 340,58 176,58" fill="#B68B56"/>
+          <polygon points="176,58 340,58 340,48 220,48" fill="#3F6F58"/>
+
+          <line x1="104" y1="30" x2="220" y2="30" stroke="#7B552A" stroke-width="1.6"/>
+          <text x="162" y="22" text-anchor="middle" font-size="9" font-weight="600" fill="#7B552A">Плавный переход 20–30 мм</text>
+          <text x="278" y="41" text-anchor="middle" font-size="8" fill="#463E37">Старое ЛКП</text>
+          <text x="180" y="106" text-anchor="middle" font-size="8.5" fill="#635950">Переход не должен ощущаться ступенькой под подушечкой пальца</text>
+        </svg>`
+      },
+
+      puttyAngle: {
+        caption: 'Угол шпателя 45°–60° для плотного заполнения без воздушных пор',
+        svg: `<svg viewBox="0 0 360 116" class="w-full max-w-md h-auto">
+          <path d="M22 82 L122 82 Q180 96 238 82 L338 82 L338 98 L22 98 Z" fill="#D6C5AC" stroke="#635950" stroke-width="1.4"/>
+          <path d="M124 82 Q180 95 236 82 L195 79 L124 82 Z" fill="#F2E7D8" stroke="#9A6E3B" stroke-width="1.2"/>
+          <line x1="195" y1="79" x2="242" y2="26" stroke="#1F1B18" stroke-width="4" stroke-linecap="round"/>
+          <path d="M222 82 A26 26 0 0 0 212 59" fill="none" stroke="#3F6F58" stroke-width="1.8"/>
+          <text x="242" y="72" font-size="9.5" font-weight="700" fill="#2E5643">45°–60°</text>
+          <text x="135" y="44" text-anchor="middle" font-size="8.5" fill="#463E37">Равномерная протяжка</text>
+        </svg>`
+      },
+
+      crossSanding: {
+        caption: 'Работа рубанком крест-накрест под углом 45° к оси детали',
+        svg: `<svg viewBox="0 0 360 116" class="w-full max-w-md h-auto">
+          <rect x="44" y="18" width="272" height="76" rx="10" fill="#F3ECE1" stroke="#BEA788" stroke-width="1.5"/>
+          <line x1="74" y1="25" x2="142" y2="87" stroke="#9A6E3B" stroke-width="2" stroke-dasharray="5 4"/>
+          <line x1="124" y1="25" x2="192" y2="87" stroke="#9A6E3B" stroke-width="2" stroke-dasharray="5 4"/>
+          <line x1="174" y1="25" x2="242" y2="87" stroke="#9A6E3B" stroke-width="2" stroke-dasharray="5 4"/>
+          <line x1="142" y1="25" x2="74" y2="87" stroke="#3F6F58" stroke-width="2"/>
+          <line x1="192" y1="25" x2="124" y2="87" stroke="#3F6F58" stroke-width="2"/>
+          <line x1="242" y1="25" x2="174" y2="87" stroke="#3F6F58" stroke-width="2"/>
+          <text x="180" y="109" text-anchor="middle" font-size="8.5" fill="#635950">Перекрёстные проходы выравнивают плоскость и снимают локальные бугры</text>
+        </svg>`
+      },
+
+      guideCoat: {
+        caption: 'Контроль проявочной пудрой до полного выравнивания плоскости',
+        svg: `<svg viewBox="0 0 360 112" class="w-full max-w-md h-auto">
+          <rect x="24" y="22" width="146" height="62" rx="10" fill="#F3ECE1" stroke="#D6C5AC"/>
+          <circle cx="68" cy="48" r="2.2" fill="#1F1B18"/>
+          <circle cx="92" cy="60" r="2.6" fill="#1F1B18"/>
+          <line x1="108" y1="40" x2="144" y2="68" stroke="#1F1B18" stroke-width="1.8"/>
+          <text x="97" y="100" text-anchor="middle" font-size="8.5" font-weight="600" fill="#7B552A">Следы пудры — есть яма или риска</text>
+
+          <rect x="190" y="22" width="146" height="62" rx="10" fill="#E6EFEA" stroke="#3F6F58"/>
+          <text x="263" y="57" text-anchor="middle" font-size="10" font-weight="600" fill="#2E5643">Ровный съём</text>
+          <text x="263" y="100" text-anchor="middle" font-size="8.5" font-weight="600" fill="#2E5643">Пудра ушла — плоскость готова</text>
+        </svg>`
+      },
+
+      masking: {
+        caption: 'Маскировка проёмов поролоновым валиком без жёсткой ступеньки',
+        svg: `<svg viewBox="0 0 360 112" class="w-full max-w-md h-auto">
+          <path d="M28 38 L168 38 Q182 38 182 52 L182 90" fill="none" stroke="#1F1B18" stroke-width="3.2"/>
+          <path d="M210 90 L210 52 Q210 38 224 38 L332 38" fill="none" stroke="#1F1B18" stroke-width="3.2"/>
+          <circle cx="196" cy="49" r="9.5" fill="#B68B56" stroke="#5C3E1C" stroke-width="1.4"/>
+          <text x="196" y="22" text-anchor="middle" font-size="9" font-weight="600" fill="#7B552A">Валик в зазоре проёма</text>
+          <text x="180" y="104" text-anchor="middle" font-size="8.5" fill="#635950">Опыл рассеивается мягко, край не оставляет резкой линии</text>
+        </svg>`
+      },
+
+      sprayOverlap: {
+        caption: 'Дистанция 15–18 см, перпендикулярный факел и перекрытие 50–75%',
+        svg: `<svg viewBox="0 0 360 114" class="w-full max-w-md h-auto">
+          <rect x="42" y="20" width="276" height="20" rx="10" fill="#9A6E3B" opacity="0.22" stroke="#7B552A"/>
+          <rect x="42" y="32" width="276" height="20" rx="10" fill="#9A6E3B" opacity="0.22" stroke="#7B552A"/>
+          <rect x="42" y="44" width="276" height="20" rx="10" fill="#9A6E3B" opacity="0.22" stroke="#7B552A"/>
+          <rect x="42" y="56" width="276" height="20" rx="10" fill="#9A6E3B" opacity="0.22" stroke="#7B552A"/>
+          <text x="180" y="51" text-anchor="middle" font-size="9" font-weight="600" fill="#1F1B18">Перекрытие проходов 50–75%</text>
+          <text x="180" y="98" text-anchor="middle" font-size="8.5" fill="#635950">Ровная скорость ведения без наклона кисти в углах</text>
+        </svg>`
+      },
+
+      primerPyramid: {
+        caption: 'Послойное расширение пятна грунта «от меньшего к большему»',
+        svg: `<svg viewBox="0 0 360 114" class="w-full max-w-md h-auto">
+          <rect x="28" y="80" width="304" height="10" rx="4" fill="#D6C5AC"/>
+          <rect x="126" y="62" width="108" height="14" rx="5" fill="#9A6E3B"/>
+          <text x="180" y="72" text-anchor="middle" font-size="8" font-weight="600" fill="#FAF7F2">1-й слой · ремонтная зона</text>
+          <rect x="92" y="44" width="176" height="14" rx="5" fill="#7B552A"/>
+          <text x="180" y="54" text-anchor="middle" font-size="8" font-weight="600" fill="#FAF7F2">2-й слой · шире на 3–5 см</text>
+          <rect x="58" y="26" width="244" height="14" rx="5" fill="#3F6F58"/>
+          <text x="180" y="36" text-anchor="middle" font-size="8" font-weight="600" fill="#FAF7F2">3-й слой · плавный выход</text>
+          <text x="180" y="104" text-anchor="middle" font-size="8.5" fill="#635950">Упрощает выведение края в ноль и снижает риск оконтуривания</text>
+        </svg>`
+      }
+    };
+
+    /* ==========================================================================
+       2. БАЗА НАВЫКОВ (25 ПОДГОТОВКА + 12 ГРУНТОВАНИЕ)
+       ========================================================================== */
+    const SKILLS_DATA = [
+      // --- ПОДГОТОВКА ПОД ГРУНТ (25) ---
+      {
+        id: 'prep-1',
+        tab: 'prep',
+        num: 1,
+        category: 'Безопасность и подготовка бокса',
+        title: 'Подбор и проверка СИЗ (респиратор, очки, перчатки)',
+        shortDesc: 'Защита органов дыхания угольными фильтрами A2P3 и изоляция кожи от изоцианатов.',
+        desc: 'Перед работой проверяется плотное прилегание полумаски, состояние предфильтров P3 против мелкой абразивной пыли и угольных картриджей A2. Обязательны защитные очки, нитриловые перчатки и чистый антистатический комбинезон без ворса.',
+        tip: 'Храните респиратор в плотно закрытом пакете — открытый фильтр впитывает пары химии из бокса даже в простое.',
+        diagram: 'ppe'
+      },
+      {
+        id: 'prep-2',
+        tab: 'prep',
+        num: 2,
+        category: 'Безопасность и подготовка бокса',
+        title: 'Техническая мойка детали и удаление битума и смол',
+        shortDesc: 'Полная очистка от дорожной грязи, солей, битумных пятен и остатков клея.',
+        desc: 'Деталь отмывается нейтральным шампунем без воска и силиконов, удаляются битум, смолы деревьев и следы старого скотча. Промываются отбортовки, внутренние кромки и технологические полости.',
+        tip: 'Шлифовка по немытой поверхности забивает абразив и втирает дорожные соли в свежую риску.',
+        diagram: 'degrease'
+      },
+      {
+        id: 'prep-3',
+        tab: 'prep',
+        num: 3,
+        category: 'Безопасность и подготовка бокса',
+        title: 'Первичное обезжиривание методом двух салфеток',
+        shortDesc: 'Снятие силиконов, полиролей и жировых плёнок до начала шлифовки.',
+        desc: 'Обезжиривание выполняется до абразивной обработки двумя салфетками: первая смачивает и растворяет загрязнения, вторая сразу собирает состав насухо.',
+        tip: 'На пластиковых деталях применяйте антистатический обезжириватель, чтобы снять статический заряд.',
+        diagram: 'degrease'
+      },
+      {
+        id: 'prep-4',
+        tab: 'prep',
+        num: 4,
+        category: 'Безопасность и подготовка бокса',
+        title: 'Демонтаж навесной фурнитуры и уплотнителей',
+        shortDesc: 'Снятие ручек, молдингов, форсунок, эмблем и элементов кромки.',
+        desc: 'Съёмная фурнитура демонтируется до начала работ, чтобы обеспечить ровный подход абразива и грунта к краям детали и исключить отслоение лака под уплотнителями.',
+        tip: 'Снятые элементы и крепёж сразу складывайте в подписанный контейнер.',
+        diagram: 'masking'
+      },
+      {
+        id: 'prep-5',
+        tab: 'prep',
+        num: 5,
+        category: 'Дефектовка и выбор абразива',
+        title: 'Визуальная дефектовка и разметка повреждений',
+        shortDesc: 'Осмотр под направленным светом и аккуратная обводка вмятин, сколов и коррозии.',
+        desc: 'Под контрольной лампой выявляются вмятины, глубокие царапины, микротрещины и очаги коррозии. Границы повреждений отмечаются мягким карандашом или маркером на водной основе.',
+        tip: 'Не используйте спиртовой маркер на шпатлёвке и грунте — пигмент способен проступить через светлую краску.',
+        diagram: 'palpation'
+      },
+      {
+        id: 'prep-6',
+        tab: 'prep',
+        num: 6,
+        category: 'Дефектовка и выбор абразива',
+        title: '«Слепое» прощупывание геометрии ладонью',
+        shortDesc: 'Тактильный контроль плавности плоскости с закрытыми глазами.',
+        desc: 'Плоская ладонь без сильного нажима ведётся вдоль и по диагонали детали с закрытыми глазами. Тактильное восприятие улавливает пологие вмятины и бугры, которые маскируются бликами.',
+        tip: 'Тонкая сухая салфетка под ладонью повышает чувствительность к микроперепадам поверхности.',
+        diagram: 'palpation'
+      },
+      {
+        id: 'prep-7',
+        tab: 'prep',
+        num: 7,
+        category: 'Дефектовка и выбор абразива',
+        title: 'Тест старого покрытия на стойкость к растворителю',
+        shortDesc: 'Проверка на 1K аэрозоль или термопластичную эмаль до нанесения грунта.',
+        desc: 'Салфетка с активным растворителем прикладывается к старому ЛКП на 15–20 секунд. Размягчение, липкость или окрашивание салфетки сигнализируют о риске подъёма покрытия.',
+        tip: 'Нестабильный слой лучше полностью удалить до надёжного основания или изолировать эпоксидным грунтом.',
+        diagram: 'degrease'
+      },
+      {
+        id: 'prep-8',
+        tab: 'prep',
+        num: 8,
+        category: 'Дефектовка и выбор абразива',
+        title: 'Соблюдение шага градаций абразива',
+        shortDesc: 'Последовательный переход по зерну без пропусков ступеней.',
+        desc: 'Каждая следующая градация должна полностью перебивать риску предыдущей. Резкий переход с грубого зерна на мелкое оставляет глубокие бороздки, которые просядут после окраски.',
+        tip: 'Придерживайтесь последовательной шкалы: P80 → P120 → P180 → P240 → P320 (под грунт) → P400/P500 (под базу).',
+        diagram: 'gritStep'
+      },
+      {
+        id: 'prep-9',
+        tab: 'prep',
+        num: 9,
+        category: 'Дефектовка и выбор абразива',
+        title: 'Подбор орбитали машинки и мягких проставок',
+        shortDesc: 'Выбор хода эксцентрика (5.0 мм / 2.5 мм) и демпфирующих прокладок.',
+        desc: 'Ход 5.0 мм применяется для активного съёма и грубой подготовки, ход 2.5 мм — для тонкой доводки под грунт и базу. Мягкие проставки защищают рёбра и изгибы от протиров.',
+        tip: 'Следите за состоянием липучки подошвы: изношенный край оставляет локальные углубления.',
+        diagram: 'gritStep'
+      },
+      {
+        id: 'prep-10',
+        tab: 'prep',
+        num: 10,
+        category: 'Зачистка и расшлифовка',
+        title: 'Зачистка коррозии до чистого металла',
+        shortDesc: 'Удаление ржавчины из пор без перегрева и истончения листа.',
+        desc: 'Очаги коррозии зачищаются до чистого металла с помощью P80–P120 или зачистных кругов. Тёмные точки в порах удаляются точечно, чтобы коррозия не вернулась под грунтом.',
+        tip: 'Контролируйте температуру тонкого металла — перегрев вызывает локальные поводки панели.',
+        diagram: 'featherEdge'
+      },
+      {
+        id: 'prep-11',
+        tab: 'prep',
+        num: 11,
+        category: 'Зачистка и расшлифовка',
+        title: 'Расшлифовка кромки «пёрышком» (Feather-edging)',
+        shortDesc: 'Плавный послойный выход от металла и грунта к старому ЛКП.',
+        desc: 'Вокруг повреждения формируется плавный переход шириной 20–30 мм с использованием P180 → P240 → P320. Слои старого покрытия сходят мягко, без вертикальных ступенек.',
+        tip: 'Проверяйте край перехода пальцем: любая ощутимая ступенька проявится после нанесения грунта.',
+        diagram: 'featherEdge'
+      },
+      {
+        id: 'prep-12',
+        tab: 'prep',
+        num: 12,
+        category: 'Зачистка и расшлифовка',
+        title: 'Сохранение заводского катафорезного слоя',
+        shortDesc: 'Аккуратная работа вокруг ремонта без лишнего снятия заводской защиты.',
+        desc: 'Заводской катафорез обладает высокой адгезией и антикоррозионной стойкостью. Снимайте его только там, где требуется ремонт металла или шпатлевание.',
+        tip: 'Открытый металл при ремонте обязательно закрывайте антикоррозионным или эпоксидным грунтом.',
+        diagram: 'featherEdge'
+      },
+      {
+        id: 'prep-13',
+        tab: 'prep',
+        num: 13,
+        category: 'Зачистка и расшлифовка',
+        title: 'Подготовка риски на голом металле (P80–P120)',
+        shortDesc: 'Создание надёжного механического сцепления под шпатлёвку или грунт.',
+        desc: 'Гладкий металл не обеспечивает должной адгезии. Участок обрабатывается абразивом P80–P120, обеспыливается и обезжиривается непосредственно перед нанесением материала.',
+        tip: 'Не касайтесь подготовленного металла незащищёнными пальцами.',
+        diagram: 'gritStep'
+      },
+      {
+        id: 'prep-14',
+        tab: 'prep',
+        num: 14,
+        category: 'Зачистка и расшлифовка',
+        title: 'Подготовка пластиковых деталей и адгезионный праймер',
+        shortDesc: 'Обезжиривание антистатиком, матирование и грунт по пластику.',
+        desc: 'Пластик очищается антистатическим составом, равномерно матируется скотч-брайтом (при необходимости с матирующей пастой), а открытые зоны пластика покрываются тонким слоем адгезионного грунта.',
+        tip: 'Наносите праймер по пластику тонко — избыточная толщина снижает прочность сцепления.',
+        diagram: 'degrease'
+      },
+      {
+        id: 'prep-15',
+        tab: 'prep',
+        num: 15,
+        category: 'Шпатлевание и геометрия',
+        title: 'Смешивание 2K шпатлёвки с отвердителем (2–3%)',
+        shortDesc: 'Точная пропорция и плавный замес без вовлечения пузырьков воздуха.',
+        desc: 'Отвердитель добавляется в пределах 2–3% от массы шпатлёвки. Составы смешиваются плавными движениями шпателя по палитре до однородного цвета без полос.',
+        tip: 'Избыток отвердителя не ускоряет работу качественно, но повышает риск пятен и усадки.',
+        diagram: 'puttyAngle'
+      },
+      {
+        id: 'prep-16',
+        tab: 'prep',
+        num: 16,
+        category: 'Шпатлевание и геометрия',
+        title: 'Нанесение на сдир под углом 45°–60°',
+        shortDesc: 'Первый плотный слой для заполнения риски и последующее выравнивание.',
+        desc: 'Первый слой наносится с уверенным прижимом под углом 45°–60°, чтобы заполнить риски без воздушных карманов. Затем формируется выравнивающий слой с минимальным припуском.',
+        tip: 'Сводите края шпатлёвки плавно — так вы сэкономите время и абразив при шлифовке.',
+        diagram: 'puttyAngle'
+      },
+      {
+        id: 'prep-17',
+        tab: 'prep',
+        num: 17,
+        category: 'Шпатлевание и геометрия',
+        title: 'Подбор рубанка по длине и жёсткости профиля',
+        shortDesc: 'Работа длинными жёсткими брусками на плоскостях и гибкими на изгибах.',
+        desc: 'Длинный рубанок опирается на неповреждённые участки плоскости и срезает вершины, выравнивая геометрию. Гибкие бруски повторяют плавные радиусы крыльев и дверей.',
+        tip: 'Не заменяйте рубанок пальцами на этапах формовки — пальцы повторяют ямы.',
+        diagram: 'crossSanding'
+      },
+      {
+        id: 'prep-18',
+        tab: 'prep',
+        num: 18,
+        category: 'Шпатлевание и геометрия',
+        title: 'Шлифовка крест-накрест под углом 45°',
+        shortDesc: 'Диагональные перекрёстные проходы для чистой плоскости без волн.',
+        desc: 'Шлифовка ведётся длинными равномерными проходами крест-накрест под углом 45° к оси детали. Нажим остаётся ровным по всей длине шлифовального блока.',
+        tip: 'Регулярно очищайте абразив от пыли — забитый круг начинает проскальзывать и греть поверхность.',
+        diagram: 'crossSanding'
+      },
+      {
+        id: 'prep-19',
+        tab: 'prep',
+        num: 19,
+        category: 'Шпатлевание и геометрия',
+        title: 'Восстановление рёбер жёсткости и граней',
+        shortDesc: 'Формирование чёткой линии ребра с использованием малярной ленты.',
+        desc: 'Смежная плоскость укрывается лентой строго по линии ребра, выводится первая сторона, затем лента переносится на неё и выводится вторая сторона.',
+        tip: 'Контролируйте симметрию ребра с соседними участками детали на просвет.',
+        diagram: 'crossSanding'
+      },
+      {
+        id: 'prep-20',
+        tab: 'prep',
+        num: 20,
+        category: 'Шпатлевание и геометрия',
+        title: 'Нанесение финишной шпатлёвки и доводка P180–P240',
+        shortDesc: 'Закрытие микропор и мелкой риски перед подготовкой под грунт.',
+        desc: 'Тонкий слой финишной шпатлёвки выравнивает мелкие поры после грубого этапа. После высыхания поверхность шлифуется рубанком P180 и перебивается на P240.',
+        tip: 'Финишная шпатлёвка работает тонким слоем — не используйте её для заполнения глубоких вмятин.',
+        diagram: 'puttyAngle'
+      },
+      {
+        id: 'prep-21',
+        tab: 'prep',
+        num: 21,
+        category: 'Финишная доводка и маскировка',
+        title: 'Контроль проявочной пудрой перед грунтом',
+        shortDesc: 'Выявление микропор, ям и остаточной риски сухим проявочным порошком.',
+        desc: 'На поверхность наносится проявочная пудра и выполняется лёгкий контрольный проход абразивом P240–P320. Оставшиеся тёмные точки и штрихи указывают на дефекты.',
+        tip: 'Сухая пудра не забивает абразив и не требует ожидания высыхания.',
+        diagram: 'guideCoat'
+      },
+      {
+        id: 'prep-22',
+        tab: 'prep',
+        num: 22,
+        category: 'Финишная доводка и маскировка',
+        title: 'Перебивка риски в зоне ремонта (P240 → P320)',
+        shortDesc: 'Подготовка единой аккуратной риски под акриловый грунт-наполнитель.',
+        desc: 'Участок шпатлёвки и расшлифованного края обрабатывается орбитальной машинкой с мягкой прокладкой зерном P240 и затем P320 для исключения глубоких царапин.',
+        tip: 'При грунтовании всей детали остальную площадь заматируйте до равномерного мата.',
+        diagram: 'gritStep'
+      },
+      {
+        id: 'prep-23',
+        tab: 'prep',
+        num: 23,
+        category: 'Финишная доводка и маскировка',
+        title: 'Матирование труднодоступных зон и кромок',
+        shortDesc: 'Ручная доводка углов, выштамповок и краёв скотч-брайтом.',
+        desc: 'В углублениях, углах и по кромкам используется скотч-брайт (при необходимости с матирующей пастой) до полного исчезновения глянца.',
+        tip: 'Особое внимание уделяйте краям и торцам — от них чаще всего начинаются сколы и отслоения.',
+        diagram: 'degrease'
+      },
+      {
+        id: 'prep-24',
+        tab: 'prep',
+        num: 24,
+        category: 'Финишная доводка и маскировка',
+        title: 'Обдувка сжатым воздухом и финальное обезжиривание',
+        shortDesc: 'Удаление пыли из зазоров и чистое обезжиривание перед маскировкой.',
+        desc: 'Деталь тщательно продувается чистым сухим воздухом, протирается антисиликоном по методу двух салфеток и выдерживается до полного испарения очистителя.',
+        tip: 'Дайте шпатлёвке время проветриться после обезжиривания, чтобы не запереть остатки растворителя.',
+        diagram: 'degrease'
+      },
+      {
+        id: 'prep-25',
+        tab: 'prep',
+        num: 25,
+        category: 'Финишная доводка и маскировка',
+        title: 'Маскировка кузова и защита проёмов валиком',
+        shortDesc: 'Укрытие соседних зон и мягкая изоляция проёмов от опыла грунта.',
+        desc: 'Прилегающие детали и стёкла закрываются бумагой и плёнкой, в проёмы устанавливается поролоновый валик. Края малярной ленты плотно приглаживаются.',
+        tip: 'На краях, где возможен опыл грунта, предпочтительна бумага — сухой напыл на плёнке легко осыпается.',
+        diagram: 'masking'
+      },
+
+      // --- ГРУНТОВАНИЕ (12) ---
+      {
+        id: 'primer-1',
+        tab: 'primer',
+        num: 1,
+        category: 'Подбор системы и смешивание',
+        title: 'Выбор типа грунта под задачу (EP / Wash / HS / Wet-on-Wet)',
+        shortDesc: 'Согласование типа грунта с основанием и дальнейшим покрытием.',
+        desc: 'Подбирается подходящий грунт: эпоксидный или кислотный для изоляции металла, акриловый наполнитель для выравнивания, «мокрый по мокрому» для подготовленных деталей без шлифовки.',
+        tip: 'Строго соблюдайте совместимость систем: на кислотный грунт не наносят эпоксидный и шпатлёвку.',
+        diagram: 'primerPyramid'
+      },
+      {
+        id: 'primer-2',
+        tab: 'primer',
+        num: 2,
+        category: 'Подбор системы и смешивание',
+        title: 'Подбор оттенка подложки по системе градаций серого',
+        shortDesc: 'Выбор светлого, серого или тёмного грунта под цвет финишной эмали.',
+        desc: 'Оттенок грунта помогает быстрее добиться укрывистости базы и корректного тона: светлые подложки подходят под светлые и яркие цвета, тёмные — под глубокие тёмные оттенки.',
+        tip: 'Подходящая подложка снижает расход базовой краски и делает будущие сколы менее заметными.',
+        diagram: 'primerPyramid'
+      },
+      {
+        id: 'primer-3',
+        tab: 'primer',
+        num: 3,
+        category: 'Подбор системы и смешивание',
+        title: 'Смешивание по мерной линейке и фильтрация',
+        shortDesc: 'Точная пропорция компонентов, разбавление и процеживание через фильтр.',
+        desc: 'Основа предварительно перемешивается, затем по линейке отмеряются отвердитель и разбавитель согласно TDS. Готовая смесь процеживается в бачок через фильтр.',
+        tip: 'Тяжёлые наполнители оседают на дно банки — всегда перемешивайте основу до однородности.',
+        diagram: 'degrease'
+      },
+      {
+        id: 'primer-4',
+        tab: 'primer',
+        num: 4,
+        category: 'Настройка и нанесение',
+        title: 'Подбор дюзы (1.3–1.8) и тестовая настройка факела',
+        shortDesc: 'Регулировка давления, подачи и формы факела на тестовом листе.',
+        desc: 'Устанавливается рекомендуемая дюза и рабочее давление. На тестовом листе проверяется симметрия факела и равномерность распыла без «плевков» и перекосов.',
+        tip: 'Настраивайте факел и давление до подхода к детали, а не на самом кузове.',
+        diagram: 'sprayOverlap'
+      },
+      {
+        id: 'primer-5',
+        tab: 'primer',
+        num: 5,
+        category: 'Настройка и нанесение',
+        title: 'Изоляция открытого металла',
+        shortDesc: 'Нанесение антикоррозионного или эпоксидного барьера на зачищенные зоны.',
+        desc: 'Открытый металл перекрывается изолирующим грунтом в соответствии с инструкцией системы, обеспечивая защиту от влаги и коррозии.',
+        tip: 'Соблюдайте время выдержки изолятора перед нанесением выравнивающего наполнителя.',
+        diagram: 'primerPyramid'
+      },
+      {
+        id: 'primer-6',
+        tab: 'primer',
+        num: 6,
+        category: 'Настройка и нанесение',
+        title: 'Дистанция 15–18 см и перекрытие факела 50–75%',
+        shortDesc: 'Равномерное ведение пистолета параллельно плоскости без завалов угла.',
+        desc: 'Факел удерживается на расстоянии 15–18 см и строго перпендикулярно поверхности. Каждый проход перекрывает предыдущий на 50–75% с постоянной скоростью.',
+        tip: 'Открывайте подачу только после начала движения руки и закрывайте до остановки.',
+        diagram: 'sprayOverlap'
+      },
+      {
+        id: 'primer-7',
+        tab: 'primer',
+        num: 7,
+        category: 'Настройка и нанесение',
+        title: 'Нанесение слоёв наполнителя «от меньшего к большему»',
+        shortDesc: 'Постепенное расширение зоны нанесения для мягкого края.',
+        desc: 'Первый слой ложится на центр ремонта, последующие слои расширяются на 3–5 см с плавным отводом факела, формируя ровный профиль толщины.',
+        tip: 'Плавный край грунта легче выводится в ноль и не создаёт жёсткого ореола.',
+        diagram: 'primerPyramid'
+      },
+      {
+        id: 'primer-8',
+        tab: 'primer',
+        num: 8,
+        category: 'Сушка, контроль и доводка',
+        title: 'Межслойная выдержка (7–15 мин до матовости)',
+        shortDesc: 'Контроль испарения растворителей между слоями грунта.',
+        desc: 'Перед следующим слоем выдерживается пауза (обычно 7–15 минут при комнатной температуре), пока глянец не сменится равномерной матовостью.',
+        tip: 'Нанесение свежего слоя поверх мокрого глянца повышает риск вскипания и усадки.',
+        diagram: 'primerPyramid'
+      },
+      {
+        id: 'primer-9',
+        tab: 'primer',
+        num: 9,
+        category: 'Сушка, контроль и доводка',
+        title: 'Контроль шагрени и устранение подтёков',
+        shortDesc: 'Оценка розлива и аккуратное удаление капель после сушки.',
+        desc: 'Поверхность оценивается на равномерную шагрень без сухого напыла. Случайный подтёк не размазывается по сырому — после высыхания он срезается и выравнивается.',
+        tip: 'Сухой опыл по краю способен впитать краску и дать пятно под лаком — следите за перекрытием.',
+        diagram: 'sprayOverlap'
+      },
+      {
+        id: 'primer-10',
+        tab: 'primer',
+        num: 10,
+        category: 'Сушка, контроль и доводка',
+        title: 'Полная сушка грунта и промывка краскопульта',
+        shortDesc: 'Выдержка до стабильной усадки и тщательная очистка оборудования.',
+        desc: 'Краскопульт промывается сразу после работы, включая воздушную голову и каналы подачи. Грунт высушивается по регламенту перед шлифовкой.',
+        tip: 'Недосушенный грунт забивает абразив и продолжает давать усадку после покраски.',
+        diagram: 'ppe'
+      },
+      {
+        id: 'primer-11',
+        tab: 'primer',
+        num: 11,
+        category: 'Сушка, контроль и доводка',
+        title: 'Проявочная пудра и шлифовка грунта рубанком (P320–P400)',
+        shortDesc: 'Финальное выравнивание плоскости грунта под окраску.',
+        desc: 'По проявочной пудре грунт выравнивается рубанком P320–P400 до однородной плоскости и плавного схождения краёв.',
+        tip: 'Если при шлифовке появились мелкие протиры до металла, изолируйте их перед нанесением базы.',
+        diagram: 'guideCoat'
+      },
+      {
+        id: 'primer-12',
+        tab: 'primer',
+        num: 12,
+        category: 'Сушка, контроль и доводка',
+        title: 'Финишная доводка P500 и проверка под блик',
+        shortDesc: 'Удаление риски от рубанка орбиталью и финальная проверка поверхности.',
+        desc: 'Плоскость доводится орбитальной машинкой (ход 2.5 мм, зерно P500 насухую), обеспыливается и проверяется под контрольным светом на однородность матовой риски.',
+        tip: 'Кратковременная протирка антисиликоном наглядно покажет геометрию и ровность до окраски.',
+        diagram: 'crossSanding'
+      }
+    ];
+
+    /* ==========================================================================
+       3. СОСТОЯНИЕ ПРИЛОЖЕНИЯ И LOCALSTORAGE
+       ========================================================================== */
+    const STORAGE_KEY = 'auto_painter_tracker_v2';
+    const LEGACY_STORAGE_KEY = 'auto_painter_tracker_v1';
+
+    let appState = {
+      activeTab: 'cover',     // 'cover' | 'prep' | 'primer' | 'guide'
+      lastWorkspaceTab: 'prep',
+      filter: 'all',         // 'all' | 'in-progress' | 'mastered'
+      searchQuery: '',
+      showRoadmap: true,
+      stars: {},
+      notes: {}
+    };
+
+    let currentModalSkillId = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            appState.stars = parsed.stars && typeof parsed.stars === 'object' ? parsed.stars : {};
+            appState.notes = parsed.notes && typeof parsed.notes === 'object' ? parsed.notes : {};
+            if (['cover', 'prep', 'primer', 'guide'].includes(parsed.activeTab)) {
+              appState.activeTab = parsed.activeTab;
+            }
+            if (['prep', 'primer'].includes(parsed.lastWorkspaceTab)) {
+              appState.lastWorkspaceTab = parsed.lastWorkspaceTab;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Ошибка чтения состояния:', e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          version: 2,
+          updatedAt: new Date().toISOString(),
+          activeTab: appState.activeTab,
+          lastWorkspaceTab: appState.lastWorkspaceTab,
+          stars: appState.stars,
+          notes: appState.notes
+        }));
+      } catch (e) {
+        showToast('Не удалось сохранить данные в браузер', 'error');
+      }
+    }
+
+    /* ==========================================================================
+       4. МЕТРИКИ И РАНГ МАСТЕРА
+       ========================================================================== */
+    function getPainterRank(totalStars) {
+      if (totalStars === 0) return 'Новичок в боксе';
+      if (totalStars <= 22) return 'Ученик подготовщика';
+      if (totalStars <= 50) return 'Мастер шпатля';
+      if (totalStars <= 85) return 'Специалист по грунту';
+      if (totalStars < 111) return 'Старший маляр цеха';
+      return 'Мастер эталонного класса';
+    }
+
+    function updateStatsUI() {
+      const prepSkills = SKILLS_DATA.filter(s => s.tab === 'prep');
+      const primerSkills = SKILLS_DATA.filter(s => s.tab === 'primer');
+
+      const prepStars = prepSkills.reduce((acc, s) => acc + (appState.stars[s.id] || 0), 0);
+      const primerStars = primerSkills.reduce((acc, s) => acc + (appState.stars[s.id] || 0), 0);
+      const totalStars = prepStars + primerStars;
+      const maxStars = SKILLS_DATA.length * 3; // 111
+      const percent = Math.round((totalStars / maxStars) * 100);
+      const rankTitle = getPainterRank(totalStars);
+
+      // Верхняя панель
+      document.getElementById('rank-badge').textContent = rankTitle;
+      document.getElementById('total-stars-text').textContent = `${totalStars} / ${maxStars} ★`;
+      document.getElementById('total-percent-text').textContent = `${percent}%`;
+      document.getElementById('total-progress-bar').style.width = `${percent}%`;
+
+      // Титульный экран
+      const masteredCount = SKILLS_DATA.filter(s => (appState.stars[s.id] || 0) === 3).length;
+      const activeCount = SKILLS_DATA.filter(s => (appState.stars[s.id] || 0) > 0).length;
+      const notesCount = Object.values(appState.notes).filter(n => n && n.trim().length > 0).length;
+
+      document.getElementById('cover-rank-title').textContent = rankTitle;
+      document.getElementById('cover-percent').textContent = `${percent}%`;
+      document.getElementById('cover-stars-ratio').textContent = `${totalStars} / ${maxStars} ★`;
+      document.getElementById('cover-prep-metric').textContent = `${prepStars} / 75 ★`;
+      document.getElementById('cover-primer-metric').textContent = `${primerStars} / 36 ★`;
+      document.getElementById('cover-prep-bar').style.width = `${Math.round((prepStars / 75) * 100)}%`;
+      document.getElementById('cover-primer-bar').style.width = `${Math.round((primerStars / 36) * 100)}%`;
+      document.getElementById('cover-mastered-count').textContent = masteredCount;
+      document.getElementById('cover-active-count').textContent = activeCount;
+      document.getElementById('cover-notes-count').textContent = notesCount;
+
+      document.getElementById('cover-cta-label').textContent = totalStars > 0 ? 'Продолжить работу' : 'Открыть трекер';
+
+      renderCoverRecentNotes();
+    }
+
+    function renderCoverRecentNotes() {
+      const section = document.getElementById('cover-notes-section');
+      const grid = document.getElementById('cover-recent-notes');
+
+      const notedSkills = SKILLS_DATA
+        .filter(s => appState.notes[s.id] && appState.notes[s.id].trim().length > 0)
+        .slice(0, 3);
+
+      if (notedSkills.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      section.classList.remove('hidden');
+      grid.innerHTML = notedSkills.map(skill => {
+        const prefix = skill.tab === 'prep' ? 'Подготовка' : 'Грунтование';
+        const notePreview = appState.notes[skill.id].trim();
+        return `
+          <button type="button" onclick="openSkillModal('${skill.id}')" class="text-left rounded-2xl bg-ivory-100/75 hover:bg-ivory-100 border border-ivory-200 p-4 transition-all">
+            <div class="font-mono text-[11px] text-bronze-700 font-semibold mb-1">${prefix} · №${skill.num}</div>
+            <div class="text-sm font-semibold text-obsidian-900 mb-1.5 line-clamp-1">${skill.title}</div>
+            <p class="text-xs text-obsidian-600 line-clamp-2 leading-relaxed">${escapeHtml(notePreview)}</p>
+          </button>
+        `;
+      }).join('');
+    }
+
+    /* ==========================================================================
+       5. ОЦЕНКА ЗВЁЗДАМИ И ЗАМЕТКИ
+       ========================================================================== */
+    function setSkillStars(skillId, starValue, event) {
+      if (event) event.stopPropagation();
+
+      const current = appState.stars[skillId] || 0;
+      const nextValue = current === starValue ? starValue - 1 : starValue;
+
+      if (nextValue <= 0) {
+        delete appState.stars[skillId];
+      } else {
+        appState.stars[skillId] = nextValue;
+      }
+
+      saveState();
+      updateStatsUI();
+      renderCurrentView();
+
+      if (currentModalSkillId === skillId) {
+        renderModalStars(skillId);
+      }
+
+      if (nextValue === 3) {
+        const skill = SKILLS_DATA.find(s => s.id === skillId);
+        if (skill) {
+          showToast(`Этап №${skill.num} отмечен на 3★`, 'success');
+        }
+      }
+    }
+
+    function getStarStatusLabel(stars) {
+      if (stars === 1) return '1★ — Изучена теория / первичная проба';
+      if (stars === 2) return '2★ — Выполнено на детали с контролем';
+      if (stars === 3) return '3★ — Уверенное выполнение без замечаний';
+      return 'Не оценено (0★)';
+    }
+
+    /* ==========================================================================
+       6. РЕНДЕР РАБОЧЕГО ЭКРАНА, КАРТЫ УРОВНЕЙ И КАРТОЧЕК
+       ========================================================================== */
+    function renderRoadmap(tabSkills) {
+      const grid = document.getElementById('roadmap-grid');
+      const summaryEl = document.getElementById('roadmap-summary');
+      const masteredCount = tabSkills.filter(s => (appState.stars[s.id] || 0) === 3).length;
+      summaryEl.textContent = `${masteredCount} / ${tabSkills.length} на 3★`;
+
+      grid.innerHTML = tabSkills.map(skill => {
+        const stars = appState.stars[skill.id] || 0;
+        const hasNote = Boolean((appState.notes[skill.id] || '').trim());
+
+        let styles = 'bg-ivory-100/70 border-ivory-300/80 text-obsidian-700 hover:border-bronze-500';
+        if (stars === 3) {
+          styles = 'bg-patina-500 border-patina-600 text-ivory-50';
+        } else if (stars > 0) {
+          styles = 'bg-bronze-100 border-bronze-400 text-obsidian-900';
+        }
+
+        return `
+          <button type="button" onclick="openSkillModal('${skill.id}')" title="№${skill.num}: ${escapeAttr(skill.title)} (${stars}★)"
+            class="relative flex flex-col items-center justify-center py-2 px-1 rounded-xl border text-xs font-mono font-semibold transition-all hover:-translate-y-0.5 active:scale-95 ${styles}">
+            <span>${String(skill.num).padStart(2, '0')}</span>
+            <span class="text-[8px] leading-none mt-1 tracking-tighter ${stars === 3 ? 'text-ivory-100' : 'text-starlight-500'}">
+              ${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}
+            </span>
+            ${hasNote ? `<span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${stars === 3 ? 'bg-ivory-50' : 'bg-bronze-600'}"></span>` : ''}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderSkillsList(tabSkills) {
+      const container = document.getElementById('skills-container');
+      const query = appState.searchQuery.trim().toLowerCase();
+
+      const filtered = tabSkills.filter(skill => {
+        const stars = appState.stars[skill.id] || 0;
+        if (appState.filter === 'mastered' && stars !== 3) return false;
+        if (appState.filter === 'in-progress' && !(stars > 0 && stars < 3)) return false;
+
+        if (query) {
+          const hay = `${skill.num} ${skill.title} ${skill.category} ${skill.shortDesc} ${skill.desc} ${skill.tip}`.toLowerCase();
+          return hay.includes(query);
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="rounded-2xl bg-ivory-50 border border-ivory-300/90 p-10 text-center shadow-card-subtle">
+            <div class="font-mono text-xs uppercase tracking-wider text-bronze-700 mb-2">Совпадений не найдено</div>
+            <h3 class="font-serif text-2xl font-semibold text-obsidian-900 mb-1.5">По текущим параметрам этапы не отображаются</h3>
+            <p class="text-xs sm:text-sm text-obsidian-600 mb-5">Сбросьте фильтр статуса или очистите строку поиска, чтобы увидеть весь список.</p>
+            <button type="button" onclick="resetFiltersAndSearch()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-obsidian-900 hover:bg-obsidian-800 text-ivory-50 transition">
+              Показать все этапы раздела
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const groups = [];
+      filtered.forEach(skill => {
+        let g = groups.find(item => item.name === skill.category);
+        if (!g) {
+          g = { name: skill.category, items: [] };
+          groups.push(g);
+        }
+        g.items.push(skill);
+      });
+
+      container.innerHTML = groups.map(group => {
+        const cards = group.items.map(skill => {
+          const stars = appState.stars[skill.id] || 0;
+          const note = (appState.notes[skill.id] || '').trim();
+
+          const cardStyle = stars === 3
+            ? 'border-patina-500/50 bg-ivory-50 ring-1 ring-patina-500/15'
+            : stars > 0
+              ? 'border-bronze-400/60 bg-ivory-50'
+              : 'border-ivory-300/85 bg-ivory-50/90';
+
+          const numBadge = stars === 3
+            ? 'bg-patina-600 text-ivory-50'
+            : stars > 0
+              ? 'bg-bronze-100 text-bronze-700 border border-bronze-400/40'
+              : 'bg-ivory-200/80 text-obsidian-800';
+
+          return `
+            <article onclick="openSkillModal('${skill.id}')"
+              class="group rounded-2xl border ${cardStyle} p-5 flex flex-col justify-between shadow-card-subtle hover:shadow-card-elevated hover:-translate-y-0.5 transition-all cursor-pointer">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-3.5">
+                  <span class="font-mono text-xs font-semibold px-2.5 py-1 rounded-lg ${numBadge}">
+                    №${String(skill.num).padStart(2, '0')}
+                  </span>
+
+                  <!-- 3 звезды -->
+                  <div class="flex items-center gap-1 bg-ivory-100/90 px-2 py-1 rounded-xl border border-ivory-200" onclick="event.stopPropagation()">
+                    ${[1, 2, 3].map(val => {
+                      const active = val <= stars;
+                      return `
+                        <button type="button" onclick="setSkillStars('${skill.id}', ${val}, event)" title="Оценить на ${val}★"
+                          class="p-0.5 rounded-md transition-transform hover:scale-115 active:scale-90 focus:outline-none">
+                          <svg class="w-4 h-4 ${active ? 'text-starlight-400 fill-starlight-400 animate-star-pulse' : 'text-ivory-300 fill-ivory-200 hover:text-starlight-400'}" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+
+                <h3 class="font-serif text-xl font-semibold text-obsidian-900 group-hover:text-bronze-700 transition-colors leading-snug mb-2">
+                  ${skill.title}
+                </h3>
+                <p class="text-xs sm:text-[13px] text-obsidian-600 leading-relaxed">
+                  ${skill.shortDesc}
+                </p>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-ivory-200 flex items-center justify-between gap-2">
+                ${note
+                  ? `<span class="text-[11px] font-mono text-obsidian-700 bg-ivory-100 border border-ivory-200 px-2 py-0.5 rounded-md truncate max-w-[65%]" title="${escapeAttr(note)}">
+                      Заметка: ${escapeHtml(note)}
+                    </span>`
+                  : `<span class="text-[11px] text-obsidian-500/80">Без заметки</span>`
+                }
+                <span class="text-xs font-semibold text-bronze-700 group-hover:translate-x-0.5 transition-transform shrink-0">
+                  Открыть →
+                </span>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        return `
+          <section class="space-y-3.5">
+            <div class="flex items-center gap-3">
+              <h2 class="font-serif text-2xl font-semibold text-obsidian-900">${group.name}</h2>
+              <div class="flex-1 editorial-rule"></div>
+              <span class="font-mono text-xs text-obsidian-500">${group.items.length}</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${cards}
+            </div>
+          </section>
+        `;
+      }).join('');
+    }
+
+    function renderCurrentView() {
+      const tab = appState.activeTab;
+
+      // Активная вкладка в навигации
+      ['cover', 'prep', 'primer', 'guide'].forEach(key => {
+        const btn = document.getElementById(`nav-${key}`);
+        if (!btn) return;
+        if (key === tab) {
+          btn.className = 'nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex items-center gap-2 bg-obsidian-900 text-ivory-50';
+        } else {
+          btn.className = 'nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-obsidian-600 hover:text-obsidian-900 hover:bg-ivory-200/60 transition-all whitespace-nowrap flex items-center gap-2';
+        }
+      });
+
+      const coverView = document.getElementById('cover-view');
+      const workspaceView = document.getElementById('workspace-view');
+      const guideView = document.getElementById('guide-view');
+
+      coverView.classList.toggle('hidden', tab !== 'cover');
+      workspaceView.classList.toggle('hidden', tab !== 'prep' && tab !== 'primer');
+      guideView.classList.toggle('hidden', tab !== 'guide');
+
+      // Перезапуск анимации появления
+      const activeEl = tab === 'cover' ? coverView : tab === 'guide' ? guideView : workspaceView;
+      activeEl.classList.remove('view-enter');
+      void activeEl.offsetWidth;
+      activeEl.classList.add('view-enter');
+
+      if (tab === 'prep' || tab === 'primer') {
+        const isPrep = tab === 'prep';
+        const tabSkills = SKILLS_DATA.filter(s => s.tab === tab);
+        const tabStars = tabSkills.reduce((sum, s) => sum + (appState.stars[s.id] || 0), 0);
+        const maxTabStars = tabSkills.length * 3;
+        const mastered = tabSkills.filter(s => (appState.stars[s.id] || 0) === 3).length;
+
+        document.getElementById('workspace-kicker').textContent = isPrep
+          ? 'Раздел I · Подготовка поверхности'
+          : 'Раздел II · Нанесение и шлифовка грунта';
+        document.getElementById('workspace-title').textContent = isPrep
+          ? 'Подготовка под грунт'
+          : 'Грунтование';
+        document.getElementById('workspace-subtitle').textContent = isPrep
+          ? '25 последовательных этапов: безопасность, диагностика, зачистка, шпатлевание, проявка и маскировка.'
+          : '12 последовательных этапов: выбор грунта, смешивание, настройка факела, выдержка и финишная доводка.';
+
+        document.getElementById('workspace-stars-metric').textContent = `${tabStars} / ${maxTabStars} ★`;
+        document.getElementById('workspace-mastered-metric').textContent = `${mastered} / ${tabSkills.length}`;
+
+        document.getElementById('roadmap-section').classList.toggle('hidden', !appState.showRoadmap);
+        renderRoadmap(tabSkills);
+        renderSkillsList(tabSkills);
+      }
+    }
+
+    /* ==========================================================================
+       7. НАВИГАЦИЯ, ПОИСК И ФИЛЬТРЫ
+       ========================================================================== */
+    function switchTab(tabName) {
+      appState.activeTab = tabName;
+      if (tabName === 'prep' || tabName === 'primer') {
+        appState.lastWorkspaceTab = tabName;
+      }
+      saveState();
+      renderCurrentView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function enterWorkspace() {
+      const target = appState.lastWorkspaceTab === 'primer' ? 'primer' : 'prep';
+      switchTab(target);
+    }
+
+    function setFilter(filterName) {
+      appState.filter = filterName;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.dataset.filter === filterName) {
+          btn.className = 'filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-900 text-ivory-50 transition-all';
+        } else {
+          btn.className = 'filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-obsidian-600 hover:text-obsidian-900 transition-all';
+        }
+      });
+      renderCurrentView();
+    }
+
+    function handleSearchInput(val) {
+      appState.searchQuery = val || '';
+      document.getElementById('clear-search-btn').classList.toggle('hidden', !appState.searchQuery);
+      renderCurrentView();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('skill-search-input');
+      input.value = '';
+      handleSearchInput('');
+      input.focus();
+    }
+
+    function resetFiltersAndSearch() {
+      appState.filter = 'all';
+      appState.searchQuery = '';
+      document.getElementById('skill-search-input').value = '';
+      document.getElementById('clear-search-btn').classList.add('hidden');
+      setFilter('all');
+    }
+
+    function toggleRoadmap() {
+      appState.showRoadmap = !appState.showRoadmap;
+      document.getElementById('toggle-map-label').textContent = appState.showRoadmap ? 'Скрыть карту' : 'Карта уровней';
+      renderCurrentView();
+    }
+
+    /* ==========================================================================
+       8. МОДАЛЬНОЕ ОКНО НАВЫКА
+       ========================================================================== */
+    function openSkillModal(skillId) {
+      const skill = SKILLS_DATA.find(s => s.id === skillId);
+      if (!skill) return;
+
+      currentModalSkillId = skillId;
+      const sectionLabel = skill.tab === 'prep' ? 'Подготовка' : 'Грунтование';
+
+      document.getElementById('modal-skill-badge').textContent = `${sectionLabel} · №${String(skill.num).padStart(2, '0')}`;
+      document.getElementById('modal-skill-category').textContent = skill.category;
+      document.getElementById('modal-skill-title').textContent = skill.title;
+      document.getElementById('modal-skill-desc').textContent = skill.desc;
+      document.getElementById('modal-skill-tip').textContent = skill.tip;
+
+      const diagram = SVG_DIAGRAMS[skill.diagram] || SVG_DIAGRAMS.gritStep;
+      document.getElementById('modal-svg-caption').textContent = diagram.caption;
+      document.getElementById('modal-svg-container').innerHTML = diagram.svg;
+
+      const noteInput = document.getElementById('modal-note-input');
+      noteInput.value = appState.notes[skillId] || '';
+      document.getElementById('note-saved-indicator').classList.add('opacity-0');
+
+      renderModalStars(skillId);
+
+      const tabSkills = SKILLS_DATA.filter(s => s.tab === skill.tab);
+      const idx = tabSkills.findIndex(s => s.id === skillId);
+      document.getElementById('modal-prev-btn').disabled = idx <= 0;
+      document.getElementById('modal-next-btn').disabled = idx >= tabSkills.length - 1;
+
+      const modal = document.getElementById('skill-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function renderModalStars(skillId) {
+      const stars = appState.stars[skillId] || 0;
+      document.getElementById('modal-star-status').textContent = getStarStatusLabel(stars);
+
+      const picker = document.getElementById('modal-stars-picker');
+      picker.innerHTML = [1, 2, 3].map(val => {
+        const active = val <= stars;
+        return `
+          <button type="button" onclick="setSkillStars('${skillId}', ${val}, event)"
+            class="flex items-center gap-1 px-3 py-1.5 rounded-xl border text-xs font-mono font-semibold transition-all active:scale-95 ${
+              active
+                ? 'bg-starlight-100 border-starlight-400 text-obsidian-900'
+                : 'bg-ivory-50 border-ivory-300 text-obsidian-500 hover:border-starlight-400'
+            }">
+            <svg class="w-4 h-4 ${active ? 'text-starlight-400 fill-starlight-400 animate-star-pulse' : 'text-ivory-300 fill-ivory-200'}" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <span>${val}★</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function navigateModalSkill(direction) {
+      if (!currentModalSkillId) return;
+      const currentSkill = SKILLS_DATA.find(s => s.id === currentModalSkillId);
+      const tabSkills = SKILLS_DATA.filter(s => s.tab === currentSkill.tab);
+      const idx = tabSkills.findIndex(s => s.id === currentModalSkillId);
+      const target = tabSkills[idx + direction];
+      if (target) {
+        openSkillModal(target.id);
+      }
+    }
+
+    function closeSkillModal() {
+      const modal = document.getElementById('skill-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      currentModalSkillId = null;
+      updateStatsUI();
+      renderCurrentView();
+    }
+
+    let noteSaveTimer = null;
+    document.getElementById('modal-note-input').addEventListener('input', function (e) {
+      if (!currentModalSkillId) return;
+      const value = e.target.value;
+      if (value.trim()) {
+        appState.notes[currentModalSkillId] = value;
+      } else {
+        delete appState.notes[currentModalSkillId];
+      }
+      saveState();
+
+      const badge = document.getElementById('note-saved-indicator');
+      badge.classList.remove('opacity-0');
+      clearTimeout(noteSaveTimer);
+      noteSaveTimer = setTimeout(() => {
+        badge.classList.add('opacity-0');
+      }, 1400);
+    });
+
+    /* ==========================================================================
+       9. ЭКСПОРТ, ИМПОРТ И СБРОС
+       ========================================================================== */
+    function openBackupModal(mode) {
+      const modal = document.getElementById('backup-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      switchBackupTab(mode || 'export');
+    }
+
+    function closeBackupModal() {
+      const modal = document.getElementById('backup-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function switchBackupTab(mode) {
+      const isExport = mode === 'export';
+      document.getElementById('backup-export-pane').classList.toggle('hidden', !isExport);
+      document.getElementById('backup-import-pane').classList.toggle('hidden', isExport);
+
+      document.getElementById('backup-tab-export').className = isExport
+        ? 'py-2 rounded-lg text-xs font-semibold bg-ivory-50 text-obsidian-900 shadow-2xs transition-all'
+        : 'py-2 rounded-lg text-xs font-medium text-obsidian-600 transition-all';
+
+      document.getElementById('backup-tab-import').className = !isExport
+        ? 'py-2 rounded-lg text-xs font-semibold bg-ivory-50 text-obsidian-900 shadow-2xs transition-all'
+        : 'py-2 rounded-lg text-xs font-medium text-obsidian-600 transition-all';
+
+      if (isExport) {
+        const payload = JSON.stringify({
+          app: 'malyarny-boks',
+          version: 2,
+          exportedAt: new Date().toISOString(),
+          stars: appState.stars,
+          notes: appState.notes
+        }, null, 2);
+        document.getElementById('export-json-textarea').value = payload;
+      }
+    }
+
+    function downloadBackupFile() {
+      const jsonStr = document.getElementById('export-json-textarea').value;
+      const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      link.href = url;
+      link.download = `malyarny-boks-${dateStr}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast('Файл резервной копии сохранён', 'success');
+    }
+
+    function copyBackupCode() {
+      const textarea = document.getElementById('export-json-textarea');
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      try {
+        document.execCommand('copy');
+        showToast('JSON-код скопирован в буфер обмена', 'success');
+      } catch (e) {
+        showToast('Выделите текст и скопируйте вручную', 'error');
+      }
+    }
+
+    function handleImportFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById('import-json-textarea').value = e.target.result;
+        applyImportedJson();
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function applyImportedJson() {
+      const raw = document.getElementById('import-json-textarea').value.trim();
+      if (!raw) {
+        showToast('Вставьте код переноса или выберите файл', 'error');
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object' || (!parsed.stars && !parsed.notes)) {
+          throw new Error('Неверный формат данных');
+        }
+        appState.stars = parsed.stars && typeof parsed.stars === 'object' ? parsed.stars : {};
+        appState.notes = parsed.notes && typeof parsed.notes === 'object' ? parsed.notes : {};
+        saveState();
+        updateStatsUI();
+        renderCurrentView();
+        closeBackupModal();
+        showToast('Прогресс и заметки восстановлены', 'success');
+      } catch (e) {
+        showToast('Некорректный JSON-код', 'error');
+      }
+    }
+
+    function openResetModal() {
+      const modal = document.getElementById('reset-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeResetModal() {
+      const modal = document.getElementById('reset-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmResetProgress() {
+      appState.stars = {};
+      appState.notes = {};
+      saveState();
+      updateStatsUI();
+      renderCurrentView();
+      closeResetModal();
+      showToast('Прогресс сброшен', 'info');
+    }
+
+    /* ==========================================================================
+       10. УТИЛИТЫ (ТОСТЫ, ЭКРАНИРОВАНИЕ, МОДАЛКИ)
+       ========================================================================== */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function escapeAttr(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const palette = {
+        success: 'bg-patina-600 text-ivory-50 border-patina-500',
+        error: 'bg-bronze-700 text-ivory-50 border-bronze-600',
+        info: 'bg-obsidian-900 text-ivory-50 border-obsidian-700'
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-lg text-xs sm:text-sm font-medium transition-all duration-300 ${palette[type] || palette.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        setTimeout(() => toast.remove(), 280);
+      }, 2600);
+    }
+
+    ['skill-modal', 'backup-modal', 'reset-modal'].forEach(id => {
+      document.getElementById(id).addEventListener('click', function (e) {
+        if (e.target === this) {
+          this.classList.add('hidden');
+          this.classList.remove('flex');
+          if (id === 'skill-modal') {
+            currentModalSkillId = null;
+            updateStatsUI();
+            renderCurrentView();
+          }
+        }
+      });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        closeSkillModal();
+        closeBackupModal();
+        closeResetModal();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      updateStatsUI();
+      renderCurrentView();
+    });
+  </script>
+</body>
+</html>
